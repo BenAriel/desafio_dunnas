@@ -41,14 +41,14 @@ public class SecurityConfig {
                         .requestMatchers("/recepcionista/**").hasAuthority("ROLE_RECEPCIONISTA")
                         .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")
                         .anyRequest().authenticated())
-        .formLogin(form -> form
-            .loginPage("/login")
-            .loginProcessingUrl("/login")
-            .usernameParameter("email")
-            .passwordParameter("password")
-            .successHandler(authenticationSuccessHandler())
-            .failureUrl("/login?error")
-            .permitAll())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .successHandler(authenticationSuccessHandler())
+                        .failureUrl("/login?error")
+                        .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")

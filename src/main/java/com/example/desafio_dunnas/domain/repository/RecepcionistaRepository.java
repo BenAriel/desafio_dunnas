@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface RecepcionistaRepository extends JpaRepository<Recepcionista, Long> {
 
     @Override
-    @EntityGraph(attributePaths = {"usuario", "setor"})
+    @EntityGraph(attributePaths = { "usuario", "setor" })
     List<Recepcionista> findAll();
 
     @Modifying
@@ -30,6 +30,6 @@ public interface RecepcionistaRepository extends JpaRepository<Recepcionista, Lo
             @Param("p_matricula") String matricula,
             @Param("p_cpf") String cpf);
 
-    @EntityGraph(attributePaths = {"usuario", "setor"})
+    @EntityGraph(attributePaths = { "usuario", "setor" })
     Optional<Recepcionista> findByUsuarioId(Long usuarioId);
 }
