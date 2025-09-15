@@ -18,6 +18,11 @@
         </c:if>
 
         <c:if test="${not empty error}">
+          <div class="bg-red-100 text-red-800 p-3 rounded text-center" data-auto-dismiss="3000">${error}</div>
+        </c:if>
+        <c:if test="${not empty success}">
+          <div class="bg-green-100 text-green-800 p-3 rounded text-center" data-auto-dismiss="3000">${success}</div>
+        </c:if>
 
       </div>
     <main class="max-w-6xl mx-auto p-6">

@@ -23,6 +23,10 @@ public class SetorService {
         return setorRepository.findAll();
     }
 
+    public List<Setor> findSetoresAbertos() {
+        return setorRepository.findByAbertoTrue();
+    }
+
     public List<Setor> findSetoresSemRecepcionista() {
         return setorRepository.findSetoresSemRecepcionista();
     }

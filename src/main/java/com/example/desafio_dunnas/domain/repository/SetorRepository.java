@@ -14,51 +14,40 @@ import com.example.desafio_dunnas.domain.entity.Setor;
 @Repository
 public interface SetorRepository extends JpaRepository<Setor, Long> {
 
-    List<Setor> findByAbertoTrue();
+        List<Setor> findByAbertoTrue();
 
-    List<Setor> findByAbertoFalse();
+        List<Setor> findByAbertoFalse();
 
-    @Query("SELECT s FROM Setor s WHERE s.aberto = true ORDER BY s.nome")
-    List<Setor> findSetoresAbertos();
+        @Query("SELECT s FROM Setor s WHERE s.id NOT IN (SELECT r.setor.id FROM Recepcionista r) ORDER BY s.nome")
+        List<Setor> findSetoresSemRecepcionista();
 
-    @Query("SELECT s FROM Setor s WHERE s.aberto = false ORDER BY s.nome")
-    List<Setor> findSetoresFechados();
+        boolean existsByNome(String nome);
 
-    @Query("SELECT s FROM Setor s WHERE s.id NOT IN (SELECT r.setor.id FROM Recepcionista r) ORDER BY s.nome")
-    List<Setor> findSetoresSemRecepcionista();
+        boolean existsByNomeAndIdNot(String nome, Long id);
 
-    boolean existsByNome(String nome);
+        @Transactional
+        @Modifying
+        @Query(value = "CALL pr_create_setor(:p_nome, :p_caixa, :p_aberto)", nativeQuery = true)
+        void criarSetor(@Param("p_nome") String nome,
+                        @Param("p_caixa") java.math.BigDecimal caixa,
+                        @Param("p_aberto") Boolean aberto);
 
-    boolean existsByNomeAndIdNot(String nome, Long id);
+        @Transactional
+        @Modifying
+        @Query(value = "CALL pr_abrir_setor(:p_setor_id)", nativeQuery = true)
+        void abrirSetor(@Param("p_setor_id") Long setorId);
 
-    @Transactional
-    @Modifying
-    @Query(value = "CALL pr_create_setor(:p_nome)", nativeQuery = true)
-    void criarSetor(@Param("p_nome") String nome);
+        @Transactional
+        @Modifying
+        @Query(value = "CALL pr_fechar_setor(:p_setor_id)", nativeQuery = true)
+        void fecharSetor(@Param("p_setor_id") Long setorId);
 
-    @Transactional
-    @Modifying
-    @Query(value = "CALL pr_create_setor(:p_nome, :p_caixa, :p_aberto)", nativeQuery = true)
-    void criarSetor(@Param("p_nome") String nome,
-            @Param("p_caixa") java.math.BigDecimal caixa,
-            @Param("p_aberto") Boolean aberto);
-
-    @Transactional
-    @Modifying
-    @Query(value = "CALL pr_abrir_setor(:p_setor_id)", nativeQuery = true)
-    void abrirSetor(@Param("p_setor_id") Long setorId);
-
-    @Transactional
-    @Modifying
-    @Query(value = "CALL pr_fechar_setor(:p_setor_id)", nativeQuery = true)
-    void fecharSetor(@Param("p_setor_id") Long setorId);
-
-    @Transactional
-    @Modifying
-    @Query(value = "CALL pr_update_setor(:p_setor_id, :p_nome, :p_caixa, :p_aberto)", nativeQuery = true)
-    void atualizarSetor(
-            @Param("p_setor_id") Long setorId,
-            @Param("p_nome") String nome,
-            @Param("p_caixa") java.math.BigDecimal caixa,
-            @Param("p_aberto") Boolean aberto);
+        @Transactional
+        @Modifying
+        @Query(value = "CALL pr_update_setor(:p_setor_id, :p_nome, :p_caixa, :p_aberto)", nativeQuery = true)
+        void atualizarSetor(
+                        @Param("p_setor_id") Long setorId,
+                        @Param("p_nome") String nome,
+                        @Param("p_caixa") java.math.BigDecimal caixa,
+                        @Param("p_aberto") Boolean aberto);
 }

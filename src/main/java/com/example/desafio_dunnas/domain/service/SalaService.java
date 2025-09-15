@@ -1,5 +1,6 @@
 package com.example.desafio_dunnas.domain.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,33 +31,24 @@ public class SalaService {
         return salaRepository.findSalasAtivasPorSetor(setorId);
     }
 
+    public List<Sala> findSalasAtivasPorSetorAberto(Long setorId) {
+        return salaRepository.findSalasAtivasPorSetorAberto(setorId);
+    }
+
+    public List<Sala> findSalasAtivasDeSetoresAbertos() {
+        return salaRepository.findSalasAtivasDeSetoresAbertos();
+    }
+
     public Optional<Sala> findById(Long id) {
         return salaRepository.findById(id);
     }
 
-    public void criarSala(String nome, java.math.BigDecimal valorPorHora, Integer capacidadeMaxima, Long setorId) {
-        salaRepository.criarSala(nome, valorPorHora, capacidadeMaxima, setorId);
+    public void criarSala(String nome, BigDecimal valorPorHora, Integer capacidadeMaxima, Long setorId, Boolean ativa) {
+        salaRepository.criarSala(nome, valorPorHora, capacidadeMaxima, setorId, ativa);
     }
 
-    public void atualizarSala(Long id, String nome, java.math.BigDecimal valorPorHora, Integer capacidadeMaxima, Boolean ativa) {
-        salaRepository.atualizarSala(id, nome, valorPorHora, capacidadeMaxima, ativa);
-    }
-
-    public Sala save(Sala sala) {
-        if (sala.getId() == null) {
-            // Criar nova sala usando procedure
-            criarSala(sala.getNome(), sala.getValorPorHora(), sala.getCapacidadeMaxima(), sala.getSetor().getId());
-            
-            // Buscar a sala criada para retornar
-            return salaRepository.findByNomeAndSetorId(sala.getNome(), sala.getSetor().getId())
-                .orElseThrow(() -> new RuntimeException("Erro ao criar sala"));
-        } else {
-            // Atualizar sala existente usando procedure
-            atualizarSala(sala.getId(), sala.getNome(), sala.getValorPorHora(), sala.getCapacidadeMaxima(), sala.getAtiva());
-            
-            return salaRepository.findById(sala.getId())
-                .orElseThrow(() -> new RuntimeException("Erro ao atualizar sala"));
-        }
+    public void atualizarSala(Long id, String nome, BigDecimal valorPorHora, Integer capacidadeMaxima, Boolean ativa, Long setorId) {
+        salaRepository.atualizarSala(id, nome, valorPorHora, capacidadeMaxima, ativa, setorId);
     }
 
     public void deleteById(Long id) {
@@ -64,25 +56,11 @@ public class SalaService {
         if (salaOpt.isEmpty()) {
             throw new IllegalArgumentException("Sala não encontrada");
         }
-        
+
         // Em vez de deletar, marca como inativa
         Sala sala = salaOpt.get();
         sala.setAtiva(false);
         salaRepository.save(sala);
     }
 
-    public Sala update(Long id, Sala salaAtualizada) {
-        Optional<Sala> salaOpt = salaRepository.findById(id);
-        if (salaOpt.isEmpty()) {
-            throw new IllegalArgumentException("Sala não encontrada");
-        }
-
-        Sala sala = salaOpt.get();
-        sala.setNome(salaAtualizada.getNome());
-        sala.setValorPorHora(salaAtualizada.getValorPorHora());
-        sala.setCapacidadeMaxima(salaAtualizada.getCapacidadeMaxima());
-        sala.setAtiva(salaAtualizada.getAtiva());
-
-        return save(sala);
-    }
 }

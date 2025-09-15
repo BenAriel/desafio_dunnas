@@ -123,7 +123,7 @@ public class AdministradorController {
             model.addAttribute("setores", setorService.findSetoresSemRecepcionista());
             return "admin/recepcionista-form-com-usuario";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Erro inesperado");
+            redirectAttributes.addFlashAttribute("error", "Erro inesperado: " + e.getMessage());
             return "redirect:/admin/recepcionistas";
         }
     }
@@ -212,7 +212,7 @@ public class AdministradorController {
             model.addAttribute("error", e.getMessage());
             return "admin/setor-form";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Erro inesperado");
+            redirectAttributes.addFlashAttribute("error", "Erro inesperado" + e.getMessage());
             return "redirect:/admin/setores";
         }
     }
@@ -244,7 +244,7 @@ public class AdministradorController {
     // ========== SALAS ==========
     @GetMapping("/salas")
     public String listarSalas(Model model) {
-        List<Sala> salas = salaService.findSalasAtivas();
+        List<Sala> salas = salaService.findAll();
         model.addAttribute("salas", salas);
         return "admin/salas";
     }
@@ -292,10 +292,10 @@ public class AdministradorController {
         try {
             if (form.getId() != null) {
                 salaService.atualizarSala(form.getId(), form.getNome(), form.getValorPorHora(),
-                        form.getCapacidadeMaxima(), Boolean.TRUE.equals(form.getAtiva()));
+                        form.getCapacidadeMaxima(), Boolean.TRUE.equals(form.getAtiva()), form.getSetorId());
             } else {
                 salaService.criarSala(form.getNome(), form.getValorPorHora(), form.getCapacidadeMaxima(),
-                        form.getSetorId());
+                        form.getSetorId(), Boolean.TRUE.equals(form.getAtiva()));
             }
             redirectAttributes.addFlashAttribute("success", "Sala salva com sucesso");
             return "redirect:/admin/salas";

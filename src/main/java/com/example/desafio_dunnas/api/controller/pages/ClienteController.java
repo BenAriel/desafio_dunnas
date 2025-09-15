@@ -44,7 +44,7 @@ public class ClienteController {
 
     @GetMapping("/setores")
     public String listarSetores(Model model) {
-        List<Setor> setores = setorService.findAll();
+        List<Setor> setores = setorService.findSetoresAbertos();
         model.addAttribute("setores", setores);
         return "cliente/setores";
     }
@@ -53,12 +53,12 @@ public class ClienteController {
     public String listarSalas(@RequestParam(required = false) Long setorId, Model model) {
         List<Sala> salas;
         if (setorId != null) {
-            salas = salaService.findSalasAtivasPorSetor(setorId);
+            salas = salaService.findSalasAtivasPorSetorAberto(setorId);
             Setor setor = setorService.findById(setorId)
                     .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado"));
             model.addAttribute("setor", setor);
         } else {
-            salas = salaService.findSalasAtivas();
+            salas = salaService.findSalasAtivasDeSetoresAbertos();
         }
 
         List<Setor> setores = setorService.findAll();
