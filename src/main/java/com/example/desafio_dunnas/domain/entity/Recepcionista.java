@@ -25,10 +25,9 @@ public class Recepcionista {
     @JoinColumn(name = "usuario_id", nullable = false, unique = true)
     private Usuario usuario;
 
-    // mapeamento simples do setor_id como coluna (evita depender da entidade Setor
-    // aqui)
-    @Column(name = "setor_id", nullable = false, unique = true)
-    private Long setorId;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "setor_id", nullable = false, unique = true)
+    private Setor setor;
 
     @Column(nullable = false, unique = true, length = 20)
     private String matricula;

@@ -1,5 +1,7 @@
 package com.example.desafio_dunnas.domain.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +23,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
             @Param("p_senha") String senha,
             @Param("p_telefone") String telefone,
             @Param("p_profissao") String profissao);
+
+    Optional<Cliente> findByUsuarioId(Long usuarioId);
 }

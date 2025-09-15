@@ -4,9 +4,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
 
 import com.example.desafio_dunnas.domain.service.ClienteService;
+import com.example.desafio_dunnas.api.dto.auth.RegistrarClienteForm;
 import com.example.desafio_dunnas.domain.service.AuthenticatedUserDetailsService;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,33 +57,41 @@ public class AuthController {
     }
 
     @GetMapping("/registrar")
-    public String registrar() {
+    public String registrar(Model model) {
+        if (!model.containsAttribute("form")) {
+            model.addAttribute("form", new RegistrarClienteForm());
+        }
         return "registrar";
     }
 
     @PostMapping("/registrar")
     public String salvar(
-            @RequestParam("nome") String nome,
-            @RequestParam("email") String email,
-            @RequestParam("senha") String senha,
-            @RequestParam("telefone") String telefone,
-            @RequestParam("profissao") String profissao) {
+            @Valid @ModelAttribute("form") RegistrarClienteForm form,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "registrar";
+        }
 
         // Criar o usuário
-        clienteService.cadastrarUsuarioECliente(nome, email, senha, telefone, profissao);
+        clienteService.cadastrarUsuarioECliente(form.getNome(), form.getEmail(), form.getSenha(), form.getTelefone(),
+                form.getProfissao());
 
         // Fazer login automático
         try {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(form.getEmail());
             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, senha, userDetails.getAuthorities());
+                    userDetails, form.getSenha(), userDetails.getAuthorities());
             Authentication authenticated = authenticationManager.authenticate(authentication);
             SecurityContextHolder.getContext().setAuthentication(authenticated);
         } catch (Exception e) {
-
-            return "redirect:/login?success";
+            redirectAttributes.addFlashAttribute("error",
+                    "Conta criada, mas não foi possível autenticar automaticamente. Faça login.");
+            return "redirect:/login";
         }
 
+        redirectAttributes.addFlashAttribute("success", "Conta criada e login efetuado com sucesso!");
         return "redirect:/cliente";
     }
 

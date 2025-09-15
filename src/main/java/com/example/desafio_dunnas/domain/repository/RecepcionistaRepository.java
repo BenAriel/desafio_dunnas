@@ -8,9 +8,16 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.desafio_dunnas.domain.entity.Recepcionista;
+import org.springframework.data.jpa.repository.EntityGraph;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecepcionistaRepository extends JpaRepository<Recepcionista, Long> {
+
+    @Override
+    @EntityGraph(attributePaths = {"usuario", "setor"})
+    List<Recepcionista> findAll();
 
     @Modifying
     @Transactional
@@ -22,4 +29,7 @@ public interface RecepcionistaRepository extends JpaRepository<Recepcionista, Lo
             @Param("p_setor_id") Long setorId,
             @Param("p_matricula") String matricula,
             @Param("p_cpf") String cpf);
+
+    @EntityGraph(attributePaths = {"usuario", "setor"})
+    Optional<Recepcionista> findByUsuarioId(Long usuarioId);
 }

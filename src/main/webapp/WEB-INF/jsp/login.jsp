@@ -11,11 +11,12 @@
 
       <div class="mb-4">
         <% if (request.getParameter("error") != null) { %>
-          <div class="bg-red-100 text-red-800 p-3 rounded">Credenciais inválidas. Tente novamente.</div>
+          <div class="bg-red-100 text-red-800 p-3 rounded"  data-auto-dismiss="3000">Credenciais inválidas. Tente novamente.</div>
         <% } %>
         <% if (request.getParameter("logout") != null) { %>
-          <div class="bg-green-100 text-green-800 p-3 rounded">Você saiu com sucesso.</div>
+          <div class="bg-green-100 text-green-800 p-3 rounded"  data-auto-dismiss="3000">Você saiu com sucesso.</div>
         <% } %>
+       
       </div>
 
   <form action="<%= request.getContextPath() %>/login" method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">

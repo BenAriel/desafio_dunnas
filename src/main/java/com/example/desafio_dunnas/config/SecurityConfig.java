@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import jakarta.servlet.DispatcherType;
 
@@ -40,14 +41,14 @@ public class SecurityConfig {
                         .requestMatchers("/recepcionista/**").hasAuthority("ROLE_RECEPCIONISTA")
                         .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")
                         .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .usernameParameter("email")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/", true)
-                        .failureUrl("/login?error")
-                        .permitAll())
+        .formLogin(form -> form
+            .loginPage("/login")
+            .loginProcessingUrl("/login")
+            .usernameParameter("email")
+            .passwordParameter("password")
+            .successHandler(authenticationSuccessHandler())
+            .failureUrl("/login?error")
+            .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
@@ -64,6 +65,28 @@ public class SecurityConfig {
     @Bean
     public SecurityContextRepository securityContextRepository() {
         return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            String target = "/";
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            boolean isRecep = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_RECEPCIONISTA".equals(a.getAuthority()));
+            boolean isCliente = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_CLIENTE".equals(a.getAuthority()));
+
+            if (isAdmin) {
+                target = "/admin?success=admin logado com sucesso";
+            } else if (isRecep) {
+                target = "/recepcionista?success=login realizado com sucesso";
+            } else if (isCliente) {
+                target = "/cliente?success=login realizado com sucesso";
+            }
+            response.sendRedirect(request.getContextPath() + target);
+        };
     }
 
     @Configuration

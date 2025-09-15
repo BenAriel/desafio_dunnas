@@ -1,8 +1,15 @@
 package com.example.desafio_dunnas.domain.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.desafio_dunnas.domain.entity.Recepcionista;
+import com.example.desafio_dunnas.domain.entity.Usuario;
 import com.example.desafio_dunnas.domain.repository.RecepcionistaRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -13,6 +20,10 @@ public class RecepcionistaService {
 
     private final RecepcionistaRepository recepcionistaRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public List<Recepcionista> findAll() {
+        return recepcionistaRepository.findAll();
+    }
 
     public void cadastrarUsuarioERecepcionista(
             String nome, String email, String senhaPlano, Long setorId, String matricula, String cpf) {
@@ -31,5 +42,14 @@ public class RecepcionistaService {
 
         String senhaHash = passwordEncoder.encode(senhaPlano);
         recepcionistaRepository.criarUsuarioERecepcionista(nome, email, senhaHash, setorId, matricula, cpf);
+    }
+
+    public Optional<Recepcionista> getRecepcionistaLogado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Usuario) {
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            return recepcionistaRepository.findByUsuarioId(usuario.getId());
+        }
+        return Optional.empty();
     }
 }

@@ -5,6 +5,7 @@ INSERT INTO tb_cargos (nome) VALUES ('ROLE_ADMIN') ON CONFLICT (nome) DO NOTHING
 INSERT INTO tb_cargos (nome) VALUES ('ROLE_RECEPCIONISTA') ON CONFLICT (nome) DO NOTHING;
 INSERT INTO tb_cargos (nome) VALUES ('ROLE_CLIENTE') ON CONFLICT (nome) DO NOTHING;
 
+-- Seeds de administrador
 DO $$
 DECLARE v_exists BOOLEAN;
 BEGIN
