@@ -25,7 +25,8 @@ public class RelatorioService {
     private final HistoricoAgendamentoRepository historicoRepository;
 
     public List<Agendamento> agendamentosPorPeriodoSetor(Long setorId, LocalDateTime inicio, LocalDateTime fim) {
-        if (inicio == null || fim == null) return Collections.emptyList();
+        if (inicio == null || fim == null)
+            return Collections.emptyList();
         if (setorId == null) {
             return agendamentoRepository.findAgendamentosPorPeriodoGlobal(inicio, fim);
         }
@@ -33,7 +34,8 @@ public class RelatorioService {
     }
 
     public List<Transacao> transacoesConfirmadasPorPeriodoSetor(Long setorId, LocalDateTime inicio, LocalDateTime fim) {
-        if (inicio == null || fim == null) return Collections.emptyList();
+        if (inicio == null || fim == null)
+            return Collections.emptyList();
         if (setorId == null) {
             return transacaoRepository.findTransacoesConfirmadasPorPeriodoGlobal(inicio, fim);
         }
@@ -41,25 +43,29 @@ public class RelatorioService {
     }
 
     public BigDecimal valorTransacoesConfirmadasPorPeriodoSetor(Long setorId, LocalDateTime inicio, LocalDateTime fim) {
-        if (inicio == null || fim == null) return BigDecimal.ZERO;
+        if (inicio == null || fim == null)
+            return BigDecimal.ZERO;
         Double valor = (setorId == null)
-            ? transacaoRepository.sumValorTransacoesConfirmadasPorPeriodoGlobal(inicio, fim)
-            : transacaoRepository.sumValorTransacoesConfirmadasPorPeriodo(setorId, inicio, fim);
+                ? transacaoRepository.sumValorTransacoesConfirmadasPorPeriodoGlobal(inicio, fim)
+                : transacaoRepository.sumValorTransacoesConfirmadasPorPeriodo(setorId, inicio, fim);
         return valor != null ? BigDecimal.valueOf(valor) : BigDecimal.ZERO;
     }
 
     public List<HistoricoAgendamento> historicoPorCliente(Long clienteId) {
-        if (clienteId == null) return Collections.emptyList();
+        if (clienteId == null)
+            return Collections.emptyList();
         return historicoRepository.findByCliente(clienteId);
     }
 
     public List<HistoricoAgendamento> historicoPorSetor(Long setorId) {
-        if (setorId == null) return Collections.emptyList();
+        if (setorId == null)
+            return Collections.emptyList();
         return historicoRepository.findBySetor(setorId);
     }
 
     public List<HistoricoAgendamento> historicoPorPeriodo(LocalDateTime inicio, LocalDateTime fim) {
-        if (inicio == null || fim == null) return Collections.emptyList();
+        if (inicio == null || fim == null)
+            return Collections.emptyList();
         return historicoRepository.findByPeriodo(inicio, fim);
     }
 }

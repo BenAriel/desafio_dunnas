@@ -48,7 +48,8 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
                      @Param("dataInicio") LocalDateTime dataInicio,
                      @Param("dataFim") LocalDateTime dataFim);
 
-       @Query("SELECT SUM(t.valor) FROM Transacao t WHERE t.dataTransacao >= :dataInicio AND t.dataTransacao <= :dataFim " +
+       @Query("SELECT SUM(t.valor) FROM Transacao t WHERE t.dataTransacao >= :dataInicio AND t.dataTransacao <= :dataFim "
+                     +
                      "AND t.status = 'CONFIRMADA'")
        Double sumValorTransacoesConfirmadasPorPeriodoGlobal(
                      @Param("dataInicio") LocalDateTime dataInicio,
@@ -75,7 +76,7 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
        void cancelarTransacao(@Param("p_transacao_id") Long transacaoId);
 
        Transacao findTop1ByAgendamentoIdAndTipoAndStatusOrderByDataTransacaoDesc(
-                       Long agendamentoId,
-                       TipoTransacao tipo,
-                       StatusTransacao status);
+                     Long agendamentoId,
+                     TipoTransacao tipo,
+                     StatusTransacao status);
 }
