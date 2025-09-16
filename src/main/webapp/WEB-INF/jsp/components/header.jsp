@@ -39,26 +39,6 @@
 		</div>
 	</div>
 </header>
-
-<script>
-	(function () {
-		function hideAfterTimeout(el, timeout) {
-			setTimeout(function () {
-				try {
-					el.style.transition = 'opacity 200ms ease';
-					el.style.opacity = '0';
-					setTimeout(function(){ el.remove(); }, 220);
-				} catch (_) {}
-			}, timeout);
-		}
-		document.addEventListener('DOMContentLoaded', function(){
-			var nodes = document.querySelectorAll('[data-auto-dismiss]');
-			nodes.forEach(function(n){
-				var t = parseInt(n.getAttribute('data-auto-dismiss'), 10);
-				if (!isNaN(t) && t > 0) hideAfterTimeout(n, t);
-			});
-		});
-	})();
-</script>
+<script src="<c:url value='/js/utils.js'/>"></script>
 
 

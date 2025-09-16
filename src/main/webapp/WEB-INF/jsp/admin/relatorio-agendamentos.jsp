@@ -61,8 +61,8 @@
                                 <td class="px-6 py-4 text-sm">${a.id}</td>
                                 <td class="px-6 py-4 text-sm">${a.sala.nome}</td>
                                 <td class="px-6 py-4 text-sm">${a.cliente.usuario.nome}</td>
-                                <td class="px-6 py-4 text-sm">${a.dataHoraInicio}</td>
-                                <td class="px-6 py-4 text-sm">${a.dataHoraFim}</td>
+                                <td class="px-6 py-4 text-sm"><span data-datetime="${a.dataHoraInicio}">${a.dataHoraInicio}</span></td>
+                                <td class="px-6 py-4 text-sm"><span data-datetime="${a.dataHoraFim}">${a.dataHoraFim}</span></td>
                                 <td class="px-6 py-4 text-sm">${a.status}</td>
                             </tr>
                         </c:forEach>
@@ -90,7 +90,7 @@
                                 <td class="px-6 py-4 text-sm">${h.agendamento.id}</td>
                                 <td class="px-6 py-4 text-sm">${h.statusAnterior}</td>
                                 <td class="px-6 py-4 text-sm">${h.statusNovo}</td>
-                                <td class="px-6 py-4 text-sm">${h.dataMudanca}</td>
+                                <td class="px-6 py-4 text-sm"><span data-datetime="${h.dataMudanca}">${h.dataMudanca}</span></td>
                                 <td class="px-6 py-4 text-sm">${h.observacao}</td>
                             </tr>
                         </c:forEach>

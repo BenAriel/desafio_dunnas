@@ -49,8 +49,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.id}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.usuario.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.sala.nome}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraInicio}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraFim}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraInicio}">${agendamento.dataHoraInicio}</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraFim}">${agendamento.dataHoraFim}</span></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <form action="<c:url value='/recepcionista/agendamentos/confirmar'/>" method="post" class="inline">
                                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
@@ -100,8 +100,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.id}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.usuario.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.sala.nome}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraInicio}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraFim}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraInicio}">${agendamento.dataHoraInicio}</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraFim}">${agendamento.dataHoraFim}</span></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <form action="<c:url value='/recepcionista/agendamentos/finalizar'/>" method="post" class="inline">
                                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
@@ -141,8 +141,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.id}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.usuario.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.sala.nome}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraInicio}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraFim}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraInicio}">${agendamento.dataHoraInicio}</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraFim}">${agendamento.dataHoraFim}</span></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">R$ ${agendamento.valorTotal}</td>
                             </tr>
                         </c:forEach>

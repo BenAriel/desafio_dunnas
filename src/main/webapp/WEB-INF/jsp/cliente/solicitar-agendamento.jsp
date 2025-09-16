@@ -116,8 +116,8 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <c:forEach var="c" items="${confirmados}">
                                 <tr>
-                                    <td class="px-4 py-2 text-sm">${c.dataHoraInicio}</td>
-                                    <td class="px-4 py-2 text-sm">${c.dataHoraFim}</td>
+                                    <td class="px-4 py-2 text-sm"><span data-datetime="${c.dataHoraInicio}">${c.dataHoraInicio}</span></td>
+                                    <td class="px-4 py-2 text-sm"><span data-datetime="${c.dataHoraFim}">${c.dataHoraFim}</span></td>
                                 </tr>
                             </c:forEach>
                         </tbody>

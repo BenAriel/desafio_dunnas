@@ -61,7 +61,7 @@
                                 <td class="px-6 py-4 text-sm">${t.agendamento.id}</td>
                                 <td class="px-6 py-4 text-sm">${t.tipo}</td>
                                 <td class="px-6 py-4 text-sm">R$ ${t.valor}</td>
-                                <td class="px-6 py-4 text-sm">${t.dataTransacao}</td>
+                                <td class="px-6 py-4 text-sm"><span data-datetime="${t.dataTransacao}">${t.dataTransacao}</span></td>
                             </tr>
                         </c:forEach>
                     </tbody>
