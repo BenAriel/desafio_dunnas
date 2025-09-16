@@ -44,7 +44,8 @@ public class AgendamentoService {
         return agendamentoRepository.findById(id);
     }
 
-    public void criarAgendamento(Long salaId, Long clienteId, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim, String observacoes) {
+    public void criarAgendamento(Long salaId, Long clienteId, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim,
+            String observacoes) {
         agendamentoRepository.criarAgendamento(salaId, clienteId, dataHoraInicio, dataHoraFim, observacoes);
     }
 
@@ -53,35 +54,34 @@ public class AgendamentoService {
         if (agendamento.getSala() == null || agendamento.getSala().getId() == null) {
             throw new IllegalArgumentException("Sala é obrigatória");
         }
-        
+
         if (agendamento.getCliente() == null || agendamento.getCliente().getId() == null) {
             throw new IllegalArgumentException("Cliente é obrigatório");
         }
-        
+
         if (agendamento.getDataHoraInicio() == null) {
             throw new IllegalArgumentException("Data/hora de início é obrigatória");
         }
-        
+
         if (agendamento.getDataHoraFim() == null) {
             throw new IllegalArgumentException("Data/hora de fim é obrigatória");
         }
 
         // Usar procedure para criar agendamento
         criarAgendamento(
-            agendamento.getSala().getId(),
-            agendamento.getCliente().getId(),
-            agendamento.getDataHoraInicio(),
-            agendamento.getDataHoraFim(),
-            agendamento.getObservacoes()
-        );
+                agendamento.getSala().getId(),
+                agendamento.getCliente().getId(),
+                agendamento.getDataHoraInicio(),
+                agendamento.getDataHoraFim(),
+                agendamento.getObservacoes());
 
         // Buscar o agendamento criado para retornar
         return agendamentoRepository.findAll().stream()
-            .filter(a -> a.getSala().getId().equals(agendamento.getSala().getId()) &&
+                .filter(a -> a.getSala().getId().equals(agendamento.getSala().getId()) &&
                         a.getCliente().getId().equals(agendamento.getCliente().getId()) &&
                         a.getDataHoraInicio().equals(agendamento.getDataHoraInicio()))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Erro ao criar agendamento"));
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Erro ao criar agendamento"));
     }
 
     public void confirmarAgendamento(Long agendamentoId) {
@@ -100,11 +100,25 @@ public class AgendamentoService {
         return agendamentoRepository.findConflitosAgendamento(salaId, dataInicio, dataFim);
     }
 
-    public List<Agendamento> findConflitosAgendamentoExcluindo(Long salaId, LocalDateTime dataInicio, LocalDateTime dataFim, Long agendamentoId) {
+    public List<Agendamento> findConflitosAgendamentoExcluindo(Long salaId, LocalDateTime dataInicio,
+            LocalDateTime dataFim, Long agendamentoId) {
         return agendamentoRepository.findConflitosAgendamentoExcluindo(salaId, dataInicio, dataFim, agendamentoId);
     }
 
     public List<Agendamento> findAgendamentosPorPeriodo(Long setorId, LocalDateTime dataInicio, LocalDateTime dataFim) {
         return agendamentoRepository.findAgendamentosPorPeriodo(setorId, dataInicio, dataFim);
+    }
+
+    public List<Agendamento> findConfirmadosPorSalaEPeriodo(Long salaId, LocalDateTime dataInicio,
+            LocalDateTime dataFim) {
+        return agendamentoRepository.findConfirmadosPorSalaEPeriodo(salaId, dataInicio, dataFim);
+    }
+
+    public List<Agendamento> findConfirmadosPorSala(Long salaId) {
+        return agendamentoRepository.findConfirmadosPorSala(salaId);
+    }
+
+    public List<Agendamento> findConfirmadosPorSalaComFimNoFuturo(Long salaId) {
+        return agendamentoRepository.findConfirmadosPorSalaComFimNoFuturo(salaId, LocalDateTime.now());
     }
 }

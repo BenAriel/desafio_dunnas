@@ -13,6 +13,27 @@
     <main class="max-w-2xl mx-auto p-6">
         <h1 class="text-3xl font-bold mb-6">Solicitar Agendamento</h1>
 
+         <c:if test="${not empty success}">
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" data-auto-dismiss="3000">
+                ${success}
+            </div>
+        </c:if>
+        <c:if test="${not empty error}">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" data-auto-dismiss="3000">
+                ${error}
+            </div>
+        </c:if>
+
+        <!-- Resumo de Preço no topo -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 class="text-sm font-medium text-blue-800 mb-2">Resumo de Preço</h3>
+            <p class="text-sm text-blue-700">
+                • Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
+                • Estimativa: <span id="estimativaResumo" class="font-semibold">Selecione início e fim</span><br>
+                • Sinal (50%): <span id="estimativaSinal" class="font-semibold">—</span> • Restante (50%): <span id="estimativaRestante" class="font-semibold">—</span>
+            </p>
+        </div>
+
         <div class="bg-white shadow rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Informações da Sala</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -45,10 +66,11 @@
               <form:input type="datetime-local" 
                   id="dataHoraInicio" 
                   path="dataHoraInicio" 
-                           step="3600"
+                           min="${minDateTime}"
+                           step="60"
                   cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
               <form:errors path="dataHoraInicio" cssClass="text-red-600 text-sm" />
-                    <p class="text-xs text-gray-500 mt-1">Selecione apenas a hora (sem minutos) para facilitar o agendamento.</p>
+                    <p class="text-xs text-gray-500 mt-1">Você pode selecionar horas e minutos.</p>
                 </div>
 
                 <div class="mb-4">
@@ -56,10 +78,11 @@
               <form:input type="datetime-local" 
                   id="dataHoraFim" 
                   path="dataHoraFim" 
-                           step="3600"
+                           min="${minDateTime}"
+                           step="60"
                   cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
               <form:errors path="dataHoraFim" cssClass="text-red-600 text-sm" />
-                    <p class="text-xs text-gray-500 mt-1">Selecione apenas a hora (sem minutos) para facilitar o agendamento.</p>
+                    <p class="text-xs text-gray-500 mt-1">Você pode selecionar horas e minutos.</p>
                 </div>
 
                 <div class="mb-6">
@@ -71,16 +94,37 @@
                               cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                 </div>
 
-                <!-- Informações sobre Pagamento -->
+                <!-- Informações sobre Pagamento (texto explicativo) -->
                 <div class="bg-blue-50 p-4 rounded-lg mb-6">
                     <h3 class="text-sm font-medium text-blue-800 mb-2">Informações sobre Pagamento</h3>
                     <p class="text-sm text-blue-700">
-                        • Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
-                        • Valor total: <strong>Calculado automaticamente</strong> (valor/hora × número de horas)<br>
-                        • Sinal (50%): <strong>Pago na confirmação</strong><br>
-                        • Restante (50%): <strong>Pago na finalização</strong>
+                        • O valor total é calculado automaticamente (valor/hora × minutos proporcionais).<br>
+                        • Sinal (50%) é pago na confirmação e o restante (50%) na finalização.
                     </p>
                 </div>
+
+                <c:if test="${not empty confirmados}">
+                <div class="bg-white border rounded-lg p-4 mb-6">
+                    <h3 class="text-sm font-medium text-gray-800 mb-2">Horários já confirmados nesta sala</h3>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Início</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fim</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <c:forEach var="c" items="${confirmados}">
+                                <tr>
+                                    <td class="px-4 py-2 text-sm">${c.dataHoraInicio}</td>
+                                    <td class="px-4 py-2 text-sm">${c.dataHoraFim}</td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                    <p class="text-xs text-gray-500 mt-2">Dica: escolha um intervalo que não conflite com os horários acima.</p>
+                </div>
+                </c:if>
 
                 <div class="flex gap-3">
                     <button type="submit" 
@@ -95,5 +139,47 @@
             </form:form>
         </div>
     </main>
+
+        <script>
+            // Cálculo client-side do preço e parcelas (sem reload)
+            (function() {
+                const ini = document.getElementById('dataHoraInicio');
+                const fim = document.getElementById('dataHoraFim');
+                const resumo = document.getElementById('estimativaResumo');
+                const sinalEl = document.getElementById('estimativaSinal');
+                const restanteEl = document.getElementById('estimativaRestante');
+                const valorPorHora = Number(('${sala.valorPorHora}' || '0').replace(',', '.')) || 0;
+                const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                function recalc() {
+                    const i = ini && ini.value ? new Date(ini.value) : null;
+                    const f = fim && fim.value ? new Date(fim.value) : null;
+                    if (!i || !f || isNaN(i.getTime()) || isNaN(f.getTime())) {
+                        resumo.textContent = 'Selecione início e fim';
+                        sinalEl.textContent = '—';
+                        restanteEl.textContent = '—';
+                        return;
+                    }
+                    if (f <= i) {
+                        resumo.textContent = 'Fim deve ser após o início';
+                        sinalEl.textContent = '—';
+                        restanteEl.textContent = '—';
+                        return;
+                    }
+                    const minutos = Math.round((f - i) / 60000);
+                    const total = (valorPorHora * minutos) / 60.0;
+                    const sinal = total / 2.0;
+                    const restante = total - sinal;
+                    resumo.textContent = `${minutos} minutos • ${currency.format(total)}`;
+                    sinalEl.textContent = currency.format(sinal);
+                    restanteEl.textContent = currency.format(restante);
+                }
+
+                ini && ini.addEventListener('change', recalc);
+                fim && fim.addEventListener('change', recalc);
+                // Recalcula se já vier com valores preenchidos (ex: erro de validação)
+                recalc();
+            })();
+        </script>
 </body>
 </html>

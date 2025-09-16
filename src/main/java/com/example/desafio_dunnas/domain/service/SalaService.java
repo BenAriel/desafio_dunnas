@@ -47,7 +47,8 @@ public class SalaService {
         salaRepository.criarSala(nome, valorPorHora, capacidadeMaxima, setorId, ativa);
     }
 
-    public void atualizarSala(Long id, String nome, BigDecimal valorPorHora, Integer capacidadeMaxima, Boolean ativa, Long setorId) {
+    public void atualizarSala(Long id, String nome, BigDecimal valorPorHora, Integer capacidadeMaxima, Boolean ativa,
+            Long setorId) {
         salaRepository.atualizarSala(id, nome, valorPorHora, capacidadeMaxima, ativa, setorId);
     }
 

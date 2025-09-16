@@ -1,6 +1,8 @@
 package com.example.desafio_dunnas.api.controller.pages;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,7 @@ import com.example.desafio_dunnas.domain.service.ClienteService;
 import com.example.desafio_dunnas.domain.service.SalaService;
 import com.example.desafio_dunnas.domain.service.SetorService;
 import com.example.desafio_dunnas.domain.service.RecepcionistaService;
+import com.example.desafio_dunnas.domain.service.RelatorioService;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -40,6 +43,7 @@ public class RecepcionistaController {
     private final SalaService salaService;
     private final SetorService setorService;
     private final RecepcionistaService recepcionistaService;
+    private final RelatorioService relatorioService;
 
     @GetMapping({ "", "/" })
     public String recepcionistaHome(Model model, RedirectAttributes redirectAttributes) {
@@ -118,6 +122,19 @@ public class RecepcionistaController {
         }
     }
 
+    @PostMapping("/agendamentos/cancelar")
+    public String cancelarAgendamento(@RequestParam Long agendamentoId, @RequestParam Long setorId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            agendamentoService.cancelarAgendamento(agendamentoId);
+            redirectAttributes.addFlashAttribute("success", "Agendamento cancelado com sucesso");
+            return "redirect:/recepcionista/agendamentos?setorId=" + setorId;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/recepcionista/agendamentos?setorId=" + setorId;
+        }
+    }
+
     @GetMapping("/agendamentos/instantaneo")
     public String agendamentoInstantaneoForm(@RequestParam(required = false) Long setorId, Model model,
             RedirectAttributes redirectAttributes) {
@@ -169,7 +186,7 @@ public class RecepcionistaController {
         }
 
         try {
-            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
+            DateTimeFormatter formatter = DateTimeFormatter
                     .ofPattern("yyyy-MM-dd'T'HH:mm");
             LocalDateTime dataHoraInicio = LocalDateTime.parse(form.getDataHoraInicio(), formatter);
             LocalDateTime dataHoraFim = LocalDateTime.parse(form.getDataHoraFim(), formatter);
@@ -223,7 +240,12 @@ public class RecepcionistaController {
     }
 
     @GetMapping("/relatorios")
-    public String relatorios(@RequestParam(required = false) Long setorId, Model model,
+    public String relatorios(@RequestParam(required = false) Long setorId,
+            @RequestParam(required = false) String dataInicio,
+            @RequestParam(required = false) String dataFim,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long clienteId,
+            Model model,
             RedirectAttributes redirectAttributes) {
         try {
             if (setorId == null) {
@@ -238,6 +260,62 @@ public class RecepcionistaController {
             Setor setor = setorService.findById(setorId)
                     .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado"));
             model.addAttribute("setor", setor);
+
+            var solicitados = agendamentoService.findBySetorIdAndStatus(setorId, StatusAgendamento.SOLICITADO);
+            var confirmados = agendamentoService.findBySetorIdAndStatus(setorId, StatusAgendamento.CONFIRMADO);
+            var finalizados = agendamentoService.findBySetorIdAndStatus(setorId, StatusAgendamento.FINALIZADO);
+            model.addAttribute("solicitados", solicitados);
+            model.addAttribute("confirmados", confirmados);
+            model.addAttribute("finalizados", finalizados);
+
+            model.addAttribute("dataInicio", dataInicio);
+            model.addAttribute("dataFim", dataFim);
+            model.addAttribute("status", status);
+            model.addAttribute("clienteId", clienteId);
+
+            List<Cliente> clientes = clienteService.findAll();
+            model.addAttribute("clientes", clientes);
+
+            LocalDate ini = (dataInicio != null && !dataInicio.isBlank())
+                    ? LocalDate.parse(dataInicio)
+                    : LocalDate.now().minusDays(30);
+            LocalDate fimD = (dataFim != null && !dataFim.isBlank())
+                    ? LocalDate.parse(dataFim)
+                    : LocalDate.now();
+            var inicio = ini.atStartOfDay();
+            var fim = fimD.atTime(23, 59, 59);
+            model.addAttribute("dataInicio", ini.toString());
+            model.addAttribute("dataFim", fimD.toString());
+
+            var agendamentosPeriodo = relatorioService.agendamentosPorPeriodoSetor(setorId, inicio, fim);
+            // aplicar filtros por status e cliente
+            if (status != null && !status.isBlank() && !"TODOS".equalsIgnoreCase(status)) {
+                try {
+                    StatusAgendamento st = StatusAgendamento.valueOf(status.toUpperCase());
+                    agendamentosPeriodo = agendamentosPeriodo.stream()
+                            .filter(a -> a.getStatus() == st)
+                            .toList();
+                } catch (IllegalArgumentException ignore) {
+                }
+            }
+            if (clienteId != null) {
+                Long cid = clienteId;
+                agendamentosPeriodo = agendamentosPeriodo.stream()
+                        .filter(a -> a.getCliente() != null && a.getCliente().getId().equals(cid))
+                        .toList();
+            }
+            model.addAttribute("agendamentos", agendamentosPeriodo);
+
+            var historicosSetor = relatorioService.historicoPorSetor(setorId);
+            var historicosFiltrados = historicosSetor.stream()
+                    .filter(h -> !h.getDataMudanca().isBefore(inicio) && !h.getDataMudanca().isAfter(fim))
+                    .toList();
+            model.addAttribute("historicos", historicosFiltrados);
+
+            var transacoes = relatorioService.transacoesConfirmadasPorPeriodoSetor(setorId, inicio, fim);
+            var valorTotal = relatorioService.valorTransacoesConfirmadasPorPeriodoSetor(setorId, inicio, fim);
+            model.addAttribute("transacoes", transacoes);
+            model.addAttribute("valorTotal", valorTotal);
             return "recepcionista/relatorios";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

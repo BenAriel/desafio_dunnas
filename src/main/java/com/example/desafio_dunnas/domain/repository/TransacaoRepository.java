@@ -42,6 +42,18 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
                      @Param("dataInicio") LocalDateTime dataInicio,
                      @Param("dataFim") LocalDateTime dataFim);
 
+       @Query("SELECT t FROM Transacao t WHERE t.dataTransacao >= :dataInicio AND t.dataTransacao <= :dataFim " +
+                     "AND t.status = 'CONFIRMADA' ORDER BY t.dataTransacao DESC")
+       List<Transacao> findTransacoesConfirmadasPorPeriodoGlobal(
+                     @Param("dataInicio") LocalDateTime dataInicio,
+                     @Param("dataFim") LocalDateTime dataFim);
+
+       @Query("SELECT SUM(t.valor) FROM Transacao t WHERE t.dataTransacao >= :dataInicio AND t.dataTransacao <= :dataFim " +
+                     "AND t.status = 'CONFIRMADA'")
+       Double sumValorTransacoesConfirmadasPorPeriodoGlobal(
+                     @Param("dataInicio") LocalDateTime dataInicio,
+                     @Param("dataFim") LocalDateTime dataFim);
+
        @Transactional
        @Modifying
        @Query(value = "CALL pr_create_transacao(:p_agendamento_id, :p_valor, :p_tipo, :p_descricao, :p_metodo_pagamento)", nativeQuery = true)
@@ -61,4 +73,9 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
        @Modifying
        @Query(value = "CALL pr_cancelar_transacao(:p_transacao_id)", nativeQuery = true)
        void cancelarTransacao(@Param("p_transacao_id") Long transacaoId);
+
+       Transacao findTop1ByAgendamentoIdAndTipoAndStatusOrderByDataTransacaoDesc(
+                       Long agendamentoId,
+                       TipoTransacao tipo,
+                       StatusTransacao status);
 }

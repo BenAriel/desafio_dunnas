@@ -97,6 +97,10 @@
                 <p>• <strong>Cancelamento:</strong> Possível apenas antes da confirmação</p>
             </div>
         </div>
+        
+        <div class="mt-12 flex justify-center">
+            <img src="<c:url value='/images/logo.png'/>" alt="Logo" class="h-56 opacity-80" />
+        </div>
     </main>
 </body>
 </html>

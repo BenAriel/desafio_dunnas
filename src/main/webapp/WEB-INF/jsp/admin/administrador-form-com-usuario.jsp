@@ -5,12 +5,12 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Novo Usuário + Administrador</title>
+  <title>Novo Administrador</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
   <div class="max-w-2xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">Cadastrar Usuário + Administrador</h1>
+    <h1 class="text-2xl font-bold mb-4">Cadastrar Administrador</h1>
   <c:if test="${not empty error}">
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" data-auto-dismiss="3000">
       ${error}

@@ -76,23 +76,40 @@
         <!-- Filtros de Relatório -->
         <div class="bg-white shadow rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Filtros de Relatório</h2>
-            <form method="get" action="<c:url value='/recepcionista/relatorios'/>" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form method="get" action="<c:url value='/recepcionista/relatorios'/>" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <input type="hidden" name="setorId" value="${setor.id}" />
                 
                 <div>
                     <label for="dataInicio" class="block text-sm font-medium text-gray-700 mb-2">Data Início</label>
-                    <input type="date" 
-                           id="dataInicio" 
-                           name="dataInicio" 
+                    <input type="date" id="dataInicio" name="dataInicio" value="${dataInicio}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 
                 <div>
                     <label for="dataFim" class="block text-sm font-medium text-gray-700 mb-2">Data Fim</label>
-                    <input type="date" 
-                           id="dataFim" 
-                           name="dataFim" 
+                    <input type="date" id="dataFim" name="dataFim" value="${dataFim}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="status" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos</option>
+                        <option value="SOLICITADO" ${status == 'SOLICITADO' ? 'selected' : ''}>Solicitado</option>
+                        <option value="CONFIRMADO" ${status == 'CONFIRMADO' ? 'selected' : ''}>Confirmado</option>
+                        <option value="FINALIZADO" ${status == 'FINALIZADO' ? 'selected' : ''}>Finalizado</option>
+                        <option value="CANCELADO" ${status == 'CANCELADO' ? 'selected' : ''}>Cancelado</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="clienteId" class="block text-sm font-medium text-gray-700 mb-2">Cliente</label>
+                    <select id="clienteId" name="clienteId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos</option>
+                        <c:forEach var="c" items="${clientes}">
+                            <option value="${c.id}" ${clienteId == c.id ? 'selected' : ''}>${c.usuario.nome}</option>
+                        </c:forEach>
+                    </select>
                 </div>
                 
                 <div class="flex items-end">
@@ -103,6 +120,104 @@
                 </div>
             </form>
         </div>
+
+        <c:if test="${not empty agendamentos}">
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Agendamentos no período</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sala</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Início</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fim</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <c:forEach var="a" items="${agendamentos}">
+                                <tr>
+                                    <td class="px-6 py-4 text-sm">${a.id}</td>
+                                    <td class="px-6 py-4 text-sm">${a.sala.nome}</td>
+                                    <td class="px-6 py-4 text-sm">${a.cliente.usuario.nome}</td>
+                                    <td class="px-6 py-4 text-sm">${a.dataHoraInicio}</td>
+                                    <td class="px-6 py-4 text-sm">${a.dataHoraFim}</td>
+                                    <td class="px-6 py-4 text-sm">R$ ${a.valorTotal}</td>
+                                    <td class="px-6 py-4 text-sm">${a.status}</td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </c:if>
+
+        <c:if test="${not empty historicos}">
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Histórico de mudanças</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agendamento</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Para</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quando</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <c:forEach var="h" items="${historicos}">
+                                <tr>
+                                    <td class="px-6 py-4 text-sm">${h.agendamento.id}</td>
+                                    <td class="px-6 py-4 text-sm">${h.statusAnterior}</td>
+                                    <td class="px-6 py-4 text-sm">${h.statusNovo}</td>
+                                    <td class="px-6 py-4 text-sm">${h.dataMudanca}</
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </c:if>
+
+        <c:if test="${not empty transacoes}">
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Transações confirmadas no período</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agendamento</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quando</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <c:forEach var="t" items="${transacoes}">
+                                <tr>
+                                    <td class="px-6 py-4 text-sm">${t.id}</td>
+                                    <td class="px-6 py-4 text-sm">${t.agendamento.id}</td>
+                                    <td class="px-6 py-4 text-sm">${t.tipo}</td>
+                                    <td class="px-6 py-4 text-sm">R$ ${t.valor}</td>
+                                    <td class="px-6 py-4 text-sm">${t.dataTransacao}</td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <c:if test="${not empty valorTotal}">
+                    <div class="mt-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">
+                        Total no período: <strong>R$ ${valorTotal}</strong>
+                    </div>
+                </c:if>
+            </div>
+        </c:if>
 
         <div class="mt-6">
             <a href="<c:url value='/recepcionista'/>" 

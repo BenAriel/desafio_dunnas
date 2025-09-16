@@ -46,7 +46,7 @@
                     <form:select id="clienteId" path="clienteId" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <form:option value="" label="Selecione um cliente" />
                         <c:forEach var="cliente" items="${clientes}">
-                            <option value="${cliente.id}" ${form.clienteId == cliente.id ? 'selected' : ''}>${cliente.nome} - ${cliente.email}</option>
+                            <option value="${cliente.id}" ${form.clienteId == cliente.id ? 'selected' : ''}>${cliente.usuario.nome} - ${cliente.usuario.email}</option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="clienteId" cssClass="text-red-600 text-sm" />
@@ -54,16 +54,16 @@
 
                 <div class="mb-4">
                     <label for="dataHoraInicio" class="block text-sm font-medium text-gray-700 mb-2">Data e Hora de Início</label>
-                    <form:input type="datetime-local" id="dataHoraInicio" path="dataHoraInicio" step="3600" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <form:input type="datetime-local" id="dataHoraInicio" path="dataHoraInicio" step="60" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     <form:errors path="dataHoraInicio" cssClass="text-red-600 text-sm" />
-                    <p class="text-xs text-gray-500 mt-1">Selecione apenas a hora (sem minutos) para facilitar o agendamento.</p>
+                    <p class="text-xs text-gray-500 mt-1">Você pode selecionar horas e minutos.</p>
                 </div>
 
                 <div class="mb-4">
                     <label for="dataHoraFim" class="block text-sm font-medium text-gray-700 mb-2">Data e Hora de Fim</label>
-                    <form:input type="datetime-local" id="dataHoraFim" path="dataHoraFim" step="3600" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <form:input type="datetime-local" id="dataHoraFim" path="dataHoraFim" step="60" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     <form:errors path="dataHoraFim" cssClass="text-red-600 text-sm" />
-                    <p class="text-xs text-gray-500 mt-1">Selecione apenas a hora (sem minutos) para facilitar o agendamento.</p>
+                    <p class="text-xs text-gray-500 mt-1">Você pode selecionar horas e minutos.</p>
                 </div>
 
                 <div class="mb-6">

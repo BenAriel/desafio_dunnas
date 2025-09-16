@@ -47,7 +47,7 @@
                         <c:forEach var="agendamento" items="${solicitados}">
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.id}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.nome}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.usuario.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.sala.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraInicio}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraFim}</td>
@@ -59,6 +59,16 @@
                                         <button type="submit" 
                                                 class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
                                             Confirmar
+                                        </button>
+                                    </form>
+                                    <form action="<c:url value='/recepcionista/agendamentos/cancelar'/>" method="post" class="inline ml-2">
+                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                        <input type="hidden" name="agendamentoId" value="${agendamento.id}" />
+                                        <input type="hidden" name="setorId" value="${setorId}" />
+                                        <button type="submit" 
+                                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                                                onclick="return confirm('Tem certeza que deseja cancelar esta solicitação?')">
+                                            Cancelar
                                         </button>
                                     </form>
                                 </td>
@@ -88,7 +98,7 @@
                         <c:forEach var="agendamento" items="${confirmados}">
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.id}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.nome}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.usuario.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.sala.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraInicio}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraFim}</td>
@@ -129,7 +139,7 @@
                         <c:forEach var="agendamento" items="${finalizados}">
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.id}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.nome}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${agendamento.cliente.usuario.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.sala.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraInicio}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.dataHoraFim}</td>

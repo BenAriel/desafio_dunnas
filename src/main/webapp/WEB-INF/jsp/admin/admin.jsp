@@ -28,24 +28,50 @@
     <main class="max-w-6xl mx-auto p-6">
       <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center">Bem vindo ao módulo de administrador</h1>
 
-      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <a href="/admin/recepcionistas" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-blue-700 group-hover:text-blue-800">Recepcionistas</div>
+      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <a href="<c:url value='/admin/recepcionistas'/>" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-blue-700 group-hover:text-blue-800">
+            <div class="text-center">
+              <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 11h14v10a2 2 0 01-2 2H7a2 2 0 01-2-2V11z"/>
+              </svg>
+              Recepcionistas
+            </div>
+          </div>
+          <p class="text-center text-gray-600 mt-2">Gerenciar equipe de recepção</p>
         </a>
-        <a href="/admin/setores" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-green-700 group-hover:text-green-800">Setores</div>
+        <a href="<c:url value='/admin/setores'/>" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-blue-700 group-hover:text-blue-800">
+            <div class="text-center">
+              <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+              Setores
+            </div>
+          </div>
+          <p class="text-center text-gray-600 mt-2">Criar e administrar setores</p>
         </a>
-        <a href="/admin/salas" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-purple-700 group-hover:text-purple-800">Salas</div>
+        <a href="<c:url value='/admin/salas'/>" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-green-700 group-hover:text-green-800">
+            <div class="text-center">
+              <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              Salas
+            </div>
+          </div>
+          <p class="text-center text-gray-600 mt-2">Gerenciar salas e valores</p>
         </a>
-        <a href="/admin/clientes" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-orange-700 group-hover:text-orange-800">Clientes</div>
-        </a>
-        <a href="/admin/administradores" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-indigo-700 group-hover:text-indigo-800">Administradores</div>
-        </a>
-        <a href="/admin/relatorios" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-gray-700 group-hover:text-gray-800">Relatórios</div>
+        <a href="<c:url value='/admin/relatorios'/>" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="h-40 flex items-center justify-center text-2xl md:text-3xl font-bold text-purple-700 group-hover:text-purple-800">
+            <div class="text-center">
+              <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2"/>
+              </svg>
+              Relatórios
+            </div>
+          </div>
+          <p class="text-center text-gray-600 mt-2">Visão geral e histórico</p>
         </a>
       </section>
 

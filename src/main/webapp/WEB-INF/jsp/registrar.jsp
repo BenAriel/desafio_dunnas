@@ -5,12 +5,12 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Novo Usuário + Cliente</title>
+  <title>Novo Cliente</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
   <div class="max-w-2xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">Cadastrar Usuário</h1>
+    <h1 class="text-2xl font-bold mb-4 text-center">Cadastrar Cliente</h1>
   <form:form id="registrarForm" modelAttribute="form" action="${pageContext.request.contextPath}/registrar" method="post" cssClass="bg-white shadow-md rounded px-8 pt-6 pb-8">
       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 
@@ -47,43 +47,6 @@
         <a class="text-blue-600" href="<c:url value='/admin'/>">Cancelar</a>
       </div>
   </form:form>
-    
-    <script type="module">
-      import { telefoneMask } from '/js/utils.js';
-
-       import { createForm } from '/js/forms.js';
-
-      const tel = document.getElementById('telefone');
-      tel?.addEventListener('input', () => {
-        tel.value = telefoneMask.mask(tel.value);
-      });
-      if (tel && tel.value) tel.value = telefoneMask.mask(tel.value);
-
-      const formCtl = createForm({
-        formId: 'registrarForm',
-        onSubmit: ({ values, form }) => {
-          const telVal = telefoneMask.unmask(values.telefone || '');
-          const telInput = form.querySelector('#telefone');
-          if (telInput) telInput.value = telVal;
-          form.submit();
-        }
-      });
-
-      formCtl.register('nome', {
-        validate: v => v && v.trim().length >= 2 || 'Informe pelo menos 2 caracteres'
-      });
-      formCtl.register('email', {
-        validate: v => /.+@.+\..+/.test(v) || 'Email inválido'
-      });
-      formCtl.register('senha', {
-        validate: v => (v && v.length >= 6) || 'Mínimo 6 caracteres'
-      });
-      formCtl.register('telefone', {
-        parse: v => telefoneMask.unmask(v),
-        validate: v => (v === '' || v.length === 11) || 'Telefone deve ter 11 dígitos'
-      });
-      formCtl.register('profissao');
-    </script>
   </div>
 </body>
 </html>
