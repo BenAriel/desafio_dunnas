@@ -68,10 +68,6 @@
                                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center px-4 py-2 rounded text-sm">
                                     Solicitar Agendamento
                                 </a>
-                                <a href="<c:url value='/cliente/salas/disponibilidade?salaId=${sala.id}'/>" 
-                                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">
-                                    Verificar Disponibilidade
-                                </a>
                             </c:when>
                             <c:otherwise>
                                 <span class="flex-1 bg-gray-400 text-white text-center px-4 py-2 rounded text-sm cursor-not-allowed">

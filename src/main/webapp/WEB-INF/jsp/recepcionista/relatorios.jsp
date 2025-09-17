@@ -50,28 +50,6 @@
             </div>
         </div>
 
-        <!-- Resumo de Agendamentos -->
-        <div class="bg-white shadow rounded-lg p-6 mb-6">
-            <h2 class="text-xl font-semibold mb-4">Resumo de Agendamentos</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-orange-50 p-4 rounded-lg text-center">
-                    <h3 class="text-sm font-medium text-orange-600">Solicitados</h3>
-                    <p class="text-2xl font-bold text-orange-900">${solicitados != null ? solicitados.size() : 0}</p>
-                </div>
-                <div class="bg-blue-50 p-4 rounded-lg text-center">
-                    <h3 class="text-sm font-medium text-blue-600">Confirmados</h3>
-                    <p class="text-2xl font-bold text-blue-900">${confirmados != null ? confirmados.size() : 0}</p>
-                </div>
-                <div class="bg-green-50 p-4 rounded-lg text-center">
-                    <h3 class="text-sm font-medium text-green-600">Finalizados</h3>
-                    <p class="text-2xl font-bold text-green-900">${finalizados != null ? finalizados.size() : 0}</p>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-lg text-center">
-                    <h3 class="text-sm font-medium text-gray-600">Total</h3>
-                    <p class="text-2xl font-bold text-gray-900">${(solicitados != null ? solicitados.size() : 0) + (confirmados != null ? confirmados.size() : 0) + (finalizados != null ? finalizados.size() : 0)}</p>
-                </div>
-            </div>
-        </div>
 
         <!-- Filtros de Relatório -->
         <div class="bg-white shadow rounded-lg p-6 mb-6">

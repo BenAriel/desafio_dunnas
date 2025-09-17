@@ -61,42 +61,7 @@
             </a>
         </section>
 
-        <div class="mt-12 bg-white shadow rounded-lg p-6">
-            <h2 class="text-2xl font-bold mb-4 text-center">Como Funciona</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="text-center">
-                    <div class="bg-blue-100 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                        <span class="text-2xl font-bold text-blue-600">1</span>
-                    </div>
-                    <h3 class="font-semibold mb-2">Escolha uma Sala</h3>
-                    <p class="text-gray-600 text-sm">Navegue pelos setores e escolha a sala que melhor atende suas necessidades.</p>
-                </div>
-                <div class="text-center">
-                    <div class="bg-green-100 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                        <span class="text-2xl font-bold text-green-600">2</span>
-                    </div>
-                    <h3 class="font-semibold mb-2">Solicite o Agendamento</h3>
-                    <p class="text-gray-600 text-sm">Preencha o formulário com data, horário e suas informações.</p>
-                </div>
-                <div class="text-center">
-                    <div class="bg-purple-100 rounded-full p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                        <span class="text-2xl font-bold text-purple-600">3</span>
-                    </div>
-                    <h3 class="font-semibold mb-2">Aguarde Confirmação</h3>
-                    <p class="text-gray-600 text-sm">O recepcionista confirmará sua solicitação e você pagará 50% do valor.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-blue-800 mb-3">💡 Informações sobre Pagamento</h3>
-            <div class="text-blue-700">
-                <p class="mb-2">• <strong>Valor por hora:</strong> Calculado automaticamente baseado no tempo de uso</p>
-                <p class="mb-2">• <strong>Sinal (50%):</strong> Pago na confirmação do agendamento</p>
-                <p class="mb-2">• <strong>Restante (50%):</strong> Pago na finalização do uso da sala</p>
-                <p>• <strong>Cancelamento:</strong> Possível apenas antes da confirmação</p>
-            </div>
-        </div>
+        
         
         <div class="mt-12 flex justify-center">
             <img src="<c:url value='/images/logo.png'/>" alt="Logo" class="h-56 opacity-80" />

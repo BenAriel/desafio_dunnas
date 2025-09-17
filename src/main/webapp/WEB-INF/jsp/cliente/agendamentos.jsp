@@ -95,7 +95,16 @@
                                         </form>
                                     </c:when>
                                     <c:when test="${agendamento.status == 'CONFIRMADO'}">
-                                        <span class="text-gray-500">Aguardando finalização</span>
+                                        <form action="<c:url value='/cliente/agendamentos/cancelar'/>" method="post" class="inline cancel-confirmado" data-inicio="${agendamento.dataHoraInicio}">
+                                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                            <input type="hidden" name="agendamentoId" value="${agendamento.id}" />
+                                            <button type="submit" 
+                                                    class="text-red-600 hover:text-red-900"
+                                                    onclick="return confirm('Deseja cancelar este agendamento confirmado? O valor de sinal será estornado do caixa.')">
+                                                Cancelar
+                                            </button>
+                                        </form>
+                                        <span class="text-gray-500 ml-2">Aguardando finalização</span>
                                     </c:when>
                                     <c:when test="${agendamento.status == 'FINALIZADO'}">
                                         <span class="text-green-600">Concluído</span>
@@ -128,5 +137,37 @@
             </a>
         </div>
     </main>
+    <script>
+        // Oculta o botão de cancelamento para confirmados cujo início já passou
+        (function(){
+            try {
+                var agora = new Date();
+                document.querySelectorAll('.cancel-confirmado').forEach(function(el){
+                    var raw = el.getAttribute('data-inicio');
+                    if (!raw) return;
+                    var d = new Date(raw);
+                    if (isNaN(d.getTime())) { d = new Date(raw.replace(' ', 'T')); }
+                    if (!isNaN(d.getTime()) && d <= agora) {
+                        el.style.display = 'none';
+                    }
+                });
+               
+                document.querySelectorAll('[data-datetime]').forEach(function(span){
+                    var raw = span.getAttribute('data-datetime');
+                    var d = new Date(raw);
+                    if (isNaN(d.getTime())) { d = new Date(raw.replace(' ', 'T')); }
+                    if (!isNaN(d.getTime())) {
+                        span.textContent = d.toLocaleString('pt-BR', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+                    }
+                });
+               
+                document.querySelectorAll('[data-auto-dismiss]')
+                    .forEach(function(el){
+                        var ms = parseInt(el.getAttribute('data-auto-dismiss')) || 3000;
+                        setTimeout(function(){ el.style.display = 'none'; }, ms);
+                    });
+            } catch(e) {}
+        })();
+    </script>
 </body>
 </html>

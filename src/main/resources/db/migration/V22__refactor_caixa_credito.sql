@@ -1,8 +1,6 @@
 
 -- Centralizar toda a lógica de crédito do caixa no trigger da tabela de transações,
 -- removendo a lógica redundante que existia na tabela de agendamentos.
-
--- Remover o trigger e a função redundantes da tabela de agendamentos.
 DROP TRIGGER IF EXISTS tr_agendamento_finalizado_credito ON tb_agendamentos;
 
 DROP FUNCTION IF EXISTS tr_finalizar_agendamento_creditar_caixa();

@@ -15,7 +15,6 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <c:forEach var="setor" items="${setores}">
                 <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow">
-                //só para testar se está vindo apenas os setores abertos
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-xl font-semibold text-gray-900">${setor.nome}</h3>
                         <span class="px-2 py-1 text-xs font-semibold rounded-full ${setor.aberto ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">

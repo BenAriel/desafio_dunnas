@@ -41,7 +41,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Setor</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CPF</th>
-                        
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -53,7 +53,14 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${recepcionista.matricula}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${recepcionista.setor.nome}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${recepcionista.cpf}</td>
-                            
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <a href="<c:url value='/admin/recepcionistas/editar?id=${recepcionista.id}'/>" class="text-blue-600 hover:text-blue-800 mr-3">Editar</a>
+                                <form action="<c:url value='/admin/recepcionistas/excluir'/>" method="post" class="inline" onsubmit="return confirm('Confirmar exclusão deste recepcionista?')">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <input type="hidden" name="id" value="${recepcionista.id}" />
+                                    <button type="submit" class="text-red-600 hover:text-red-800">Excluir</button>
+                                </form>
+                            </td>
                         </tr>
                     </c:forEach>
                 </tbody>
