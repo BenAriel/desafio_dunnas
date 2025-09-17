@@ -42,13 +42,13 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
        @Query("SELECT a FROM Agendamento a WHERE a.sala.setor.id = :setorId " +
                      "AND a.dataHoraInicio >= :dataInicio AND a.dataHoraInicio <= :dataFim " +
-                     "ORDER BY a.dataHoraInicio")
+                     "ORDER BY a.dataHoraInicio DESC")
        List<Agendamento> findAgendamentosPorPeriodo(@Param("setorId") Long setorId,
                      @Param("dataInicio") LocalDateTime dataInicio,
                      @Param("dataFim") LocalDateTime dataFim);
 
        @Query("SELECT a FROM Agendamento a WHERE a.dataHoraInicio >= :dataInicio AND a.dataHoraInicio <= :dataFim " +
-                     "ORDER BY a.dataHoraInicio")
+                     "ORDER BY a.dataHoraInicio DESC")
        List<Agendamento> findAgendamentosPorPeriodoGlobal(@Param("dataInicio") LocalDateTime dataInicio,
                      @Param("dataFim") LocalDateTime dataFim);
 

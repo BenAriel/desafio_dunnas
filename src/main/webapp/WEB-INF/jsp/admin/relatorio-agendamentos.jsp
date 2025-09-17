@@ -63,7 +63,25 @@
                                 <td class="px-6 py-4 text-sm">${a.cliente.usuario.nome}</td>
                                 <td class="px-6 py-4 text-sm"><span data-datetime="${a.dataHoraInicio}">${a.dataHoraInicio}</span></td>
                                 <td class="px-6 py-4 text-sm"><span data-datetime="${a.dataHoraFim}">${a.dataHoraFim}</span></td>
-                                <td class="px-6 py-4 text-sm">${a.status}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <c:choose>
+                                        <c:when test="${a.status == 'SOLICITADO'}">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Solicitado</span>
+                                        </c:when>
+                                        <c:when test="${a.status == 'CONFIRMADO'}">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Confirmado</span>
+                                        </c:when>
+                                        <c:when test="${a.status == 'FINALIZADO'}">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Finalizado</span>
+                                        </c:when>
+                                        <c:when test="${a.status == 'CANCELADO'}">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Cancelado</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">${a.status}</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
                             </tr>
                         </c:forEach>
                     </tbody>
@@ -78,6 +96,8 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agendamento</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sala (Setor)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">De</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Para</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quando</th>
@@ -88,8 +108,26 @@
                         <c:forEach var="h" items="${historicos}">
                             <tr>
                                 <td class="px-6 py-4 text-sm">${h.agendamento.id}</td>
-                                <td class="px-6 py-4 text-sm">${h.statusAnterior}</td>
-                                <td class="px-6 py-4 text-sm">${h.statusNovo}</td>
+                                <td class="px-6 py-4 text-sm">${h.agendamento.sala.nome} (${h.agendamento.sala.setor.nome})</td>
+                                <td class="px-6 py-4 text-sm">${h.agendamento.cliente.usuario.nome}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <c:choose>
+                                        <c:when test="${h.statusAnterior == 'SOLICITADO'}"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Solicitado</span></c:when>
+                                        <c:when test="${h.statusAnterior == 'CONFIRMADO'}"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Confirmado</span></c:when>
+                                        <c:when test="${h.statusAnterior == 'FINALIZADO'}"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Finalizado</span></c:when>
+                                        <c:when test="${h.statusAnterior == 'CANCELADO'}"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Cancelado</span></c:when>
+                                        <c:otherwise><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">${h.statusAnterior}</span></c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td class="px-6 py-4 text-sm">
+                                    <c:choose>
+                                        <c:when test="${h.statusNovo == 'SOLICITADO'}"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Solicitado</span></c:when>
+                                        <c:when test="${h.statusNovo == 'CONFIRMADO'}"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Confirmado</span></c:when>
+                                        <c:when test="${h.statusNovo == 'FINALIZADO'}"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Finalizado</span></c:when>
+                                        <c:when test="${h.statusNovo == 'CANCELADO'}"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Cancelado</span></c:when>
+                                        <c:otherwise><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">${h.statusNovo}</span></c:otherwise>
+                                    </c:choose>
+                                </td>
                                 <td class="px-6 py-4 text-sm"><span data-datetime="${h.dataMudanca}">${h.dataMudanca}</span></td>
                                 <td class="px-6 py-4 text-sm">${h.observacao}</td>
                             </tr>
