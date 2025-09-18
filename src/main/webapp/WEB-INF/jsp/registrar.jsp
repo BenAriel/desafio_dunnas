@@ -49,22 +49,6 @@
       </div>
   </form:form>
   </div>
-  <script>
-    (function(){
-      var Utils = window.Utils || {};
-      var tel = document.getElementById('telefone');
-      if (tel && Utils.telefoneMask) {
-        tel.addEventListener('input', function(){
-          var raw = Utils.telefoneMask.unmask(tel.value);
-          tel.value = Utils.telefoneMask.mask(raw);
-        });
-        if (tel.form) {
-          tel.form.addEventListener('submit', function(){
-            tel.value = Utils.telefoneMask.unmask(tel.value);
-          });
-        }
-      }
-    })();
-  </script>
+  <script defer src="<c:url value='/js/registrar.js'/>"></script>
 </body>
 </html>

@@ -26,7 +26,7 @@
 
 
         <c:if test="${not empty sala}">
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div id="resumoPreco" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6" data-valor-por-hora="${sala.valorPorHora}">
             <h3 class="text-sm font-medium text-blue-800 mb-2">Resumo de Preço</h3>
             <p class="text-sm text-blue-700">
                 • Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
@@ -141,71 +141,6 @@
         
     </main>
 
-    <script>
-        // Preencher o resumo de preço com base na sala selecionada e nas datas
-        (function() {
-            const ini = document.getElementById('dataHoraInicio');
-            const fim = document.getElementById('dataHoraFim');
-            const resumo = document.getElementById('estimativaResumo');
-            const sinalEl = document.getElementById('estimativaSinal');
-            const restanteEl = document.getElementById('estimativaRestante');
-            const salaSelect = document.getElementById('salaId');
-            const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-
-            function valorPorHoraSelecionado() {
-               
-                // o resumo só funciona quando uma sala já estiver selecionada e carregada.
-                const v = '${sala != null ? sala.valorPorHora : ""}';
-                if (!v) return 0;
-                return Number(String(v).replace(',', '.')) || 0;
-            }
-
-            function recalc() {
-                if (!resumo || !sinalEl || !restanteEl) return;
-                const i = ini && ini.value ? new Date(ini.value) : null;
-                const f = fim && fim.value ? new Date(fim.value) : null;
-                const vph = valorPorHoraSelecionado();
-                if (!i || !f || isNaN(i.getTime()) || isNaN(f.getTime())) {
-                    resumo.textContent = 'Selecione início e fim';
-                    sinalEl.textContent = '—';
-                    restanteEl.textContent = '—';
-                    return;
-                }
-                if (f <= i) {
-                    resumo.textContent = 'Fim deve ser após o início';
-                    sinalEl.textContent = '—';
-                    restanteEl.textContent = '—';
-                    return;
-                }
-                const minutos = Math.round((f - i) / 60000);
-                const total = (vph * minutos) / 60.0;
-                const sinal = total / 2.0;
-                const restante = total - sinal;
-                resumo.textContent = `${minutos} minutos • ${currency.format(total)}`;
-                sinalEl.textContent = currency.format(sinal);
-                restanteEl.textContent = currency.format(restante);
-            }
-
-            ini && ini.addEventListener('change', recalc);
-            fim && fim.addEventListener('change', recalc);
-            // Quando chegar com valores já preenchidos (ex.: erro de validação), recalcular
-            recalc();
-
-        
-            if (salaSelect) {
-                salaSelect.addEventListener('change', function() {
-                    const val = salaSelect.value;
-                    const setorInput = document.querySelector("input[name='setorId']");
-                    const setorId = setorInput ? setorInput.value : '';
-                    if (val) {
-                        const url = new URL(window.location.href);
-                        url.searchParams.set('salaId', val);
-                        if (setorId) url.searchParams.set('setorId', setorId);
-                        window.location.href = url.toString();
-                    }
-                });
-            }
-        })();
-    </script>
+    <script defer src="<c:url value='/js/recepcionista/agendamento-instantaneo.js'/>"></script>
 </body>
 </html>

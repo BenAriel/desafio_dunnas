@@ -12,7 +12,7 @@
               </svg>
             </div>
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 id="confirm-modal-title" class="text-base font-semibold text-gray-900">Confirmar ação</h3>
+              <h3 id="confirm-modal-title" class="text-base font-semibold text-gray-900">Confirmar</h3>
               <div class="mt-2">
                 <p id="confirm-modal-message" class="text-sm text-gray-600">Tem certeza que deseja prosseguir?</p>
               </div>

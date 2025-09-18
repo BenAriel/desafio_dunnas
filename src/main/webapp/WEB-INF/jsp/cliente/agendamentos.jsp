@@ -212,37 +212,6 @@
             </a>
         </div>
     </main>
-    <script>
-        // Oculta o botão de cancelamento para confirmados cujo início já passou
-        (function(){
-            try {
-                var agora = new Date();
-                document.querySelectorAll('.cancel-confirmado').forEach(function(el){
-                    var raw = el.getAttribute('data-inicio');
-                    if (!raw) return;
-                    var d = new Date(raw);
-                    if (isNaN(d.getTime())) { d = new Date(raw.replace(' ', 'T')); }
-                    if (!isNaN(d.getTime()) && d <= agora) {
-                        el.style.display = 'none';
-                    }
-                });
-               
-                document.querySelectorAll('[data-datetime]').forEach(function(span){
-                    var raw = span.getAttribute('data-datetime');
-                    var d = new Date(raw);
-                    if (isNaN(d.getTime())) { d = new Date(raw.replace(' ', 'T')); }
-                    if (!isNaN(d.getTime())) {
-                        span.textContent = d.toLocaleString('pt-BR', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
-                    }
-                });
-               
-                document.querySelectorAll('[data-auto-dismiss]')
-                    .forEach(function(el){
-                        var ms = parseInt(el.getAttribute('data-auto-dismiss')) || 3000;
-                        setTimeout(function(){ el.style.display = 'none'; }, ms);
-                    });
-            } catch(e) {}
-        })();
-    </script>
+    <script defer src="<c:url value='/js/cliente/agendamentos.js'/>"></script>
 </body>
 </html>

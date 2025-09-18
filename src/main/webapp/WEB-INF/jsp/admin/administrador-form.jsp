@@ -34,22 +34,6 @@
       </div>
     </form>
   </div>
-  <script>
-    (function(){
-      var Utils = window.Utils || {};
-      var el = document.getElementById('cpf');
-      if (el && Utils.cpfMask) {
-        el.addEventListener('input', function(){
-          var raw = Utils.cpfMask.unmask(el.value);
-          el.value = Utils.cpfMask.mask(raw);
-        });
-        if (el.form) {
-          el.form.addEventListener('submit', function(){
-            el.value = Utils.cpfMask.unmask(el.value);
-          });
-        }
-      }
-    })();
-  </script>
+  <script defer src="<c:url value='/js/admin/administrador-form.js'/>"></script>
 </body>
 </html>
