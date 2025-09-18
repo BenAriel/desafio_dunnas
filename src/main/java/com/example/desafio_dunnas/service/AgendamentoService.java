@@ -43,6 +43,8 @@ public class AgendamentoService {
             throw new IllegalArgumentException("datas de início e fim são obrigatórias");
         if (!dataHoraInicio.isBefore(dataHoraFim))
             throw new IllegalArgumentException("dataHoraInicio deve ser anterior a dataHoraFim");
+        if (!dataHoraInicio.isAfter(LocalDateTime.now()))
+            throw new IllegalArgumentException("dataHoraInicio deve ser futura");
 
         List<Agendamento> conflitos = agendamentoRepository.findConflitosAgendamento(salaId, dataHoraInicio,
                 dataHoraFim);
@@ -84,10 +86,20 @@ public class AgendamentoService {
             throw new IllegalArgumentException("agendamentoId é obrigatório");
         Agendamento a = agendamentoRepository.findById(agendamentoId)
                 .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
-        if (a.getDataHoraInicio() != null && !LocalDateTime.now().isBefore(a.getDataHoraInicio()))
-            throw new IllegalStateException("Não é possível cancelar após o horário de início");
-        if (a.getStatus() != StatusAgendamento.SOLICITADO && a.getStatus() != StatusAgendamento.CONFIRMADO)
+        // Regra:
+        // - SOLICITADO pode ser cancelado a qualquer momento (mesmo após o início)
+        // - CONFIRMADO só pode ser cancelado até o horário de início
+        // - Demais status não podem ser cancelados
+        if (a.getStatus() == StatusAgendamento.SOLICITADO) {
+            // permitido sempre
+        } else if (a.getStatus() == StatusAgendamento.CONFIRMADO) {
+            if (a.getDataHoraInicio() != null && !LocalDateTime.now().isBefore(a.getDataHoraInicio())) {
+                throw new IllegalStateException(
+                        "Não é possível cancelar agendamento confirmado após o horário de início");
+            }
+        } else {
             throw new IllegalStateException("Somente solicitações ou confirmados podem ser cancelados");
+        }
 
         agendamentoRepository.cancelarAgendamento(agendamentoId);
     }

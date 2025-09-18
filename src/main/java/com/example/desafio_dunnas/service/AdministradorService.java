@@ -28,6 +28,8 @@ public class AdministradorService {
             throw new IllegalArgumentException("cpf é obrigatório");
         if (cpf.length() != 11)
             throw new IllegalArgumentException("cpf deve ter 11 dígitos");
+        if (!cpf.chars().allMatch(Character::isDigit))
+            throw new IllegalArgumentException("cpf deve conter apenas dígitos numéricos");
 
         String senhaHash = passwordEncoder.encode(senhaPlano);
         adminRepository.criarUsuarioEAdministrador(nome, email, senhaHash, matricula, cpf);

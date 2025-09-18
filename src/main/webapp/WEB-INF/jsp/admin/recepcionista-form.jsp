@@ -5,62 +5,68 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Novo Recepcionista</title>
+  <title><c:choose><c:when test="${empty form.usuarioId}">Novo Recepcionista</c:when><c:otherwise>Editar Recepcionista</c:otherwise></c:choose></title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
  <%@ include file="/WEB-INF/jsp/components/header.jsp" %>
   <div class="max-w-2xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4 text-center">Cadastrar Recepcionista</h1>
+    <h1 class="text-2xl font-bold mb-4 text-center">
+      <c:choose>
+        <c:when test="${empty form.usuarioId}">Cadastrar Recepcionista</c:when>
+        <c:otherwise>Editar Recepcionista</c:otherwise>
+      </c:choose>
+    </h1>
     <c:if test="${not empty error}">
       <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" data-auto-dismiss="3000">
         ${error}
       </div>
     </c:if>
-  <form:form modelAttribute="form" action="${pageContext.request.contextPath}/admin/recepcionistas/criar" method="post" cssClass="bg-white shadow-md rounded px-8 pt-6 pb-8">
+    <form:form modelAttribute="form" action="${pageContext.request.contextPath}/admin/recepcionistas/salvar" method="post" cssClass="bg-white shadow-md rounded px-8 pt-6 pb-8">
       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+      <form:hidden path="usuarioId"/>
+      <form:hidden path="recepcionistaId"/>
 
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1" for="nome">Nome</label>
-  <form:input path="nome" id="nome" cssClass="border rounded w-full p-2" />
-  <form:errors path="nome" cssClass="text-red-600 text-sm" />
+        <form:input path="nome" id="nome" cssClass="border rounded w-full p-2" />
+        <form:errors path="nome" cssClass="text-red-600 text-sm" />
       </div>
 
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1" for="email">Email</label>
-  <form:input path="email" id="email" type="email" cssClass="border rounded w-full p-2" />
-  <form:errors path="email" cssClass="text-red-600 text-sm" />
+        <form:input path="email" id="email" type="email" cssClass="border rounded w-full p-2" />
+        <form:errors path="email" cssClass="text-red-600 text-sm" />
       </div>
 
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1" for="senha">Senha</label>
-  <form:password path="senha" id="senha" cssClass="border rounded w-full p-2" />
-  <form:errors path="senha" cssClass="text-red-600 text-sm" />
+        <form:password path="senha" id="senha" cssClass="border rounded w-full p-2" required="required" />
+        <form:errors path="senha" cssClass="text-red-600 text-sm" />
       </div>
 
       <c:choose>
         <c:when test="${not empty setores}">
           <div class="mb-4">
             <label class="block text-sm font-medium mb-1" for="setorId">Setor</label>
-            <form:select path="setorId" id="setorId" cssClass="border rounded w-full p-2">
+            <form:select path="setorId" id="setorId" cssClass="border rounded w-full p-2" required="required">
               <form:option value="" label="Selecione um setor" />
               <form:options items="${setores}" itemValue="id" itemLabel="nome" />
             </form:select>
             <form:errors path="setorId" cssClass="text-red-600 text-sm" />
-            <p class="text-xs text-gray-500 mt-1">Somente setores sem recepcionista são listados.</p>
           </div>
         </c:when>
         <c:otherwise>
           <div class="mb-4 p-3 rounded bg-yellow-50 text-yellow-800 border border-yellow-200">
-            Não há setores disponíveis sem recepcionista. Crie um novo setor ou desvincule um recepcionista existente.
+            Não há setores disponíveis. Crie um novo setor.
           </div>
         </c:otherwise>
       </c:choose>
 
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1" for="matricula">Matrícula</label>
-  <form:input path="matricula" id="matricula" cssClass="border rounded w-full p-2" />
-  <form:errors path="matricula" cssClass="text-red-600 text-sm" />
+        <form:input path="matricula" id="matricula" cssClass="border rounded w-full p-2" />
+        <form:errors path="matricula" cssClass="text-red-600 text-sm" />
       </div>
 
       <div class="mb-6">
@@ -70,11 +76,11 @@
       </div>
 
       <div class="flex gap-2">
-        <button type="submit" class="bg-blue-600 text-white rounded px-4 py-2" <c:if test="${empty setores}">disabled</c:if>>Salvar</button>
-        <a class="text-blue-600" href="<c:url value='/admin'/>">Cancelar</a>
+        <button type="submit" class="bg-blue-600 text-white rounded px-4 py-2">Salvar</button>
+        <a class="text-blue-600" href="<c:url value='/admin/recepcionistas'/>">Cancelar</a>
       </div>
-  </form:form>
+    </form:form>
   </div>
-  <script defer src="<c:url value='/js/admin/recepcionista-form-com-usuario.js'/>"></script>
+  <script defer src="<c:url value='/js/admin/recepcionista-form.js'/> "></script>
 </body>
 </html>

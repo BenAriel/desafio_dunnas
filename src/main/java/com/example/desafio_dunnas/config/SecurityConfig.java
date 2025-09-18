@@ -36,7 +36,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 
-                        .requestMatchers("/login", "/registrar", "/test", "/css/**", "/js/**", "/static/**").permitAll()
+                        .requestMatchers("/login", "/registrar", "/cliente/editar", "/test", "/css/**", "/js/**",
+                                "/static/**")
+                        .permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/recepcionista/**").hasAuthority("ROLE_RECEPCIONISTA")
                         .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")

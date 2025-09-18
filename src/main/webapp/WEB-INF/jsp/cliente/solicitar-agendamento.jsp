@@ -24,15 +24,6 @@
             </div>
         </c:if>
 
-        <!-- Resumo de Preço no topo -->
-        <div id="resumoPreco" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6" data-valor-por-hora="${sala.valorPorHora}">
-            <h3 class="text-sm font-medium text-blue-800 mb-2">Resumo de Preço</h3>
-            <p class="text-sm text-blue-700">
-                • Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
-                • Estimativa: <span id="estimativaResumo" class="font-semibold">Selecione início e fim</span><br>
-                • Sinal (50%): <span id="estimativaSinal" class="font-semibold">—</span>  Restante (50%): <span id="estimativaRestante" class="font-semibold">—</span>
-            </p>
-        </div>
 
         
 
@@ -79,6 +70,14 @@
                     <p class="text-xs text-gray-500 mt-2">Dica: escolha um intervalo que não conflite com os horários acima.</p>
                 </div>
                 </c:if>
+                 <div id="resumoPreco" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6" data-valor-por-hora="${sala.valorPorHora}">
+            <h3 class="text-sm font-medium text-blue-800 mb-2">Resumo de Preço</h3>
+            <p class="text-sm text-blue-700">
+                 Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
+                Estimativa: <span id="estimativaResumo" class="font-semibold">Selecione início e fim</span><br>
+                Sinal (50%): <span id="estimativaSinal" class="font-semibold">—</span>  Restante (50%): <span id="estimativaRestante" class="font-semibold">—</span>
+            </p>
+        </div>
         <div class="bg-white shadow rounded-lg p-6">
             <form:form modelAttribute="form" action="${pageContext.request.contextPath}/cliente/agendamentos/solicitar" method="post">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />

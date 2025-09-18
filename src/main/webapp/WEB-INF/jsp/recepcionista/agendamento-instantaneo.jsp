@@ -25,16 +25,7 @@
         </c:if>
 
 
-        <c:if test="${not empty sala}">
-        <div id="resumoPreco" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6" data-valor-por-hora="${sala.valorPorHora}">
-            <h3 class="text-sm font-medium text-blue-800 mb-2">Resumo de Preço</h3>
-            <p class="text-sm text-blue-700">
-                • Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
-                • Estimativa: <span id="estimativaResumo" class="font-semibold">Selecione início e fim</span><br>
-                • Sinal (50%): <span id="estimativaSinal" class="font-semibold">—</span>  Restante (50%): <span id="estimativaRestante" class="font-semibold">—</span>
-            </p>
-        </div>
-        </c:if>
+       
 
         <c:if test="${not empty sala}">
         <div class="bg-white shadow rounded-lg p-6 mb-6">
@@ -81,6 +72,17 @@
             <p class="text-xs text-gray-500 mt-2">Dica: escolha um intervalo que não conflite com os horários acima.</p>
         </div>
         </c:if>
+
+         <c:if test="${not empty sala}">
+        <div id="resumoPreco" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6" data-valor-por-hora="${sala.valorPorHora}">
+            <h3 class="text-sm font-medium text-blue-800 mb-2">Resumo de Preço</h3>
+            <p class="text-sm text-blue-700">
+                Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
+                Estimativa: <span id="estimativaResumo" class="font-semibold">Selecione início e fim</span><br>
+                 Sinal (50%): <span id="estimativaSinal" class="font-semibold">—</span>  Restante (50%): <span id="estimativaRestante" class="font-semibold">—</span>
+            </p>
+        </div>
+        </c:if>
         <div class="bg-white shadow rounded-lg p-6">
             <form:form modelAttribute="form" action="${pageContext.request.contextPath}/recepcionista/agendamentos/instantaneo" method="post">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
@@ -106,6 +108,10 @@
                         </c:forEach>
                     </form:select>
                     <form:errors path="clienteId" cssClass="text-red-600 text-sm" />
+                    <p class="text-xs text-gray-600 mt-2">
+                        Cliente não possui conta? 
+                        <a href="<c:url value='/registrar'/>" class="text-blue-600 hover:underline">Crie a conta do cliente</a>.
+                    </p>
                 </div>
 
                 <div class="mb-4">

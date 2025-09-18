@@ -11,7 +11,10 @@ import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 
 public final class DbErrorMessageResolver {
 
-    private static final Pattern GENERIC_RAISE_MSG = Pattern.compile("^(.+)$");
+    // Remove blocos "Onde:"/"Where:" e trechos técnicos de PL/pgSQL
+    private static final Pattern WHERE_BLOCK_PATTERN = Pattern.compile("(?is)\\n\\s*(onde|where):.*$");
+    private static final Pattern PLSQL_TECH_PATTERN = Pattern.compile("(?is)(fun[cç][aã]o\n?\s*pl/pgsql.*)$");
+    private static final Pattern MULTILINE_FIRST_LINE = Pattern.compile("^([^\n\r]+)");
 
     private static final Map<String, String> CONSTRAINT_MESSAGES = Map.ofEntries(
             Map.entry("ux_recepcionista_setor", "Este setor já possui um recepcionista alocado."),
@@ -133,21 +136,35 @@ public final class DbErrorMessageResolver {
     private static String sanitizeMessage(String raw) {
         if (raw == null)
             return null;
-        // Remove prefixos comuns técnicos
+        // Observação: poderíamos inspecionar getServerErrorMessage() quando disponível,
+        // mas aqui focamos em sanitizar a string de mensagem recebida.
+
+        // Remove prefixos e blocos técnicos
         String s = raw
                 .replaceAll("org.postgresql.util.PSQLException: ", "")
-                .replaceAll("ERROR: ", "")
-                .replaceAll("Detalhe: ", "")
-                .replaceAll("Detail: ", "")
+                .replaceAll("(?i)ERROR: ", "")
+                .replaceAll("(?i)Detalhe: ", "")
+                .replaceAll("(?i)Detail: ", "")
+                .replaceAll("\r", "")
                 .trim();
 
-        Matcher m = GENERIC_RAISE_MSG.matcher(s);
-        if (m.find()) {
-            s = m.group(1).trim();
+        // Remove bloco 'Onde:'/'Where:' e assinaturas PL/pgSQL
+        s = WHERE_BLOCK_PATTERN.matcher(s).replaceAll("");
+        s = PLSQL_TECH_PATTERN.matcher(s).replaceAll("");
+
+        // Fica apenas com a primeira linha
+        Matcher first = MULTILINE_FIRST_LINE.matcher(s);
+        if (first.find()) {
+            s = first.group(1).trim();
         }
 
         if (!s.isEmpty()) {
             s = s.substring(0, 1).toUpperCase(Locale.forLanguageTag("pt-BR")) + s.substring(1);
+        }
+
+        // Se sobrar vazio, retorna fallback genérico
+        if (s.isBlank()) {
+            return "Ocorreu um erro ao processar sua solicitação.";
         }
         return s;
     }

@@ -30,8 +30,6 @@
 										<c:choose>
 											<c:when test="${roleKey == 'ROLE_ADMIN'}">(Administrador)</c:when>
 											<c:when test="${roleKey == 'ROLE_RECEPCIONISTA'}">(Recepcionista)</c:when>
-											<c:when test="${roleKey == 'ROLE_CLIENTE'}">(Cliente)</c:when>
-											<c:otherwise>(${roleKey})</c:otherwise>
 										</c:choose>
 									</span>
 								</sec:authorize>

@@ -48,4 +48,27 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
      * @post Nenhuma modificação em estado; apenas leitura
      */
     Optional<Cliente> findByUsuarioId(Long usuarioId);
+
+    /**
+     * Atualiza dados do usuário e cliente de forma atômica.
+     *
+     * Procedure: pr_update_usuario_e_cliente
+     *
+     * @param usuarioId ID do usuário a atualizar
+     * @param nome      Novo nome
+     * @param email     Novo e-mail (único)
+     * @param senha     Novo hash de senha (pode ser nulo para manter)
+     * @param telefone  Novo telefone (11 dígitos)
+     * @param profissao Nova profissão (opcional)
+     */
+    @Transactional
+    @Modifying
+    @Query(value = "CALL pr_update_usuario_e_cliente(:p_usuario_id, :p_nome, :p_email, :p_senha, :p_telefone, :p_profissao)", nativeQuery = true)
+    void atualizarUsuarioECliente(
+            @Param("p_usuario_id") Long usuarioId,
+            @Param("p_nome") String nome,
+            @Param("p_email") String email,
+            @Param("p_senha") String senha,
+            @Param("p_telefone") String telefone,
+            @Param("p_profissao") String profissao);
 }

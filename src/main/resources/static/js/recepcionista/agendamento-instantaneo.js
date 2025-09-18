@@ -1,4 +1,3 @@
-// Lógica de estimativa de preço do agendamento instantâneo
 (function () {
   "use strict";
 

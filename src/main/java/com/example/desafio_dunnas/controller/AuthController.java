@@ -1,6 +1,7 @@
 package com.example.desafio_dunnas.controller;
 
 import org.springframework.stereotype.Controller;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 
 import com.example.desafio_dunnas.config.DbErrorMessageResolver;
 import com.example.desafio_dunnas.form.auth.RegistrarClienteForm;
+import com.example.desafio_dunnas.form.auth.EditarClientePublicForm;
 import com.example.desafio_dunnas.service.ClienteService;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,11 +31,17 @@ public class AuthController {
     private final ClienteService clienteService;
 
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model, HttpServletRequest request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken)) {
+
+            if ((model != null && model.containsAttribute("error"))
+                    || request.getParameter("error") != null
+                    || request.getParameter("logout") != null) {
+                return "login";
+            }
             for (GrantedAuthority au : authentication.getAuthorities()) {
                 String role = au.getAuthority();
                 if ("ROLE_ADMIN".equals(role)) {
@@ -83,6 +91,35 @@ public class AuthController {
         }
 
         return "redirect:/login";
+    }
+
+    @GetMapping("/cliente/editar")
+    public String editarPublico(Model model) {
+        if (!model.containsAttribute("form")) {
+            model.addAttribute("form", new EditarClientePublicForm());
+        }
+        return "cliente/editar-publico";
+    }
+
+    @PostMapping("/cliente/editar")
+    public String salvarEdicaoPublica(
+            @Valid @ModelAttribute("form") EditarClientePublicForm form,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "cliente/editar-publico";
+        }
+
+        try {
+            clienteService.atualizarCadastroPublico(form.getEmail(), form.getNome(), form.getTelefone(),
+                    form.getProfissao(), form.getNovaSenha());
+            redirectAttributes.addFlashAttribute("success", "Dados atualizados com sucesso. Você já pode fazer login.");
+            return "redirect:/login";
+        } catch (Exception e) {
+            bindingResult.reject("error", DbErrorMessageResolver.resolve(e));
+            return "cliente/editar-publico";
+        }
     }
 
 }

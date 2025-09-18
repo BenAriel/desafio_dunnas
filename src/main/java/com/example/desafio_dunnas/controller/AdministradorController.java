@@ -20,7 +20,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.example.desafio_dunnas.config.DbErrorMessageResolver;
 import com.example.desafio_dunnas.dto.relatorio.RelatorioFiltroDTO;
 import com.example.desafio_dunnas.form.recepcionista.RecepcionistaForm;
-import com.example.desafio_dunnas.form.recepcionista.RecepcionistaEditForm;
 import com.example.desafio_dunnas.form.sala.SalaForm;
 import com.example.desafio_dunnas.form.setor.SetorForm;
 import com.example.desafio_dunnas.model.Sala;
@@ -71,14 +70,21 @@ public class AdministradorController {
         }
         List<Setor> setores = setorService.findSetoresSemRecepcionista();
         model.addAttribute("setores", setores);
-        return "admin/recepcionista-form-com-usuario";
+        return "admin/recepcionista-form";
     }
 
     @GetMapping("/recepcionistas/editar")
     public String editarRecepcionistaForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             var r = recepcionistaService.findById(id);
-            RecepcionistaEditForm form = new RecepcionistaEditForm();
+            // incluir setor atual do recepcionista na lista para edição
+            List<Setor> setores = setorService.findSetoresSemRecepcionista();
+            if (r.getSetor() != null && setores.stream().noneMatch(s -> s.getId().equals(r.getSetor().getId()))) {
+                setores.add(r.getSetor());
+            }
+            model.addAttribute("setores", setores);
+
+            RecepcionistaForm form = new RecepcionistaForm();
             form.setRecepcionistaId(r.getId());
             form.setUsuarioId(r.getUsuario().getId());
             form.setNome(r.getUsuario().getNome());
@@ -87,38 +93,10 @@ public class AdministradorController {
             form.setMatricula(r.getMatricula());
             form.setCpf(r.getCpf());
             model.addAttribute("form", form);
-            model.addAttribute("setores", setorService.findAllNaoExcluidos());
-            return "admin/recepcionista-edit-form";
+            return "admin/recepcionista-form";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/admin/recepcionistas";
-        }
-    }
-
-    @PostMapping("/recepcionistas/atualizar")
-    public String atualizarRecepcionista(
-            @Valid @ModelAttribute("form") RecepcionistaEditForm form,
-            BindingResult bindingResult,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("setores", setorService.findAllNaoExcluidos());
-            return "admin/recepcionista-edit-form";
-        }
-        try {
-            recepcionistaService.atualizarRecepcionista(form.getUsuarioId(), form.getNome(), form.getEmail(),
-                    form.getSenha(), form.getSetorId(), form.getMatricula(), form.getCpf());
-            redirectAttributes.addFlashAttribute("success", "Recepcionista atualizado com sucesso");
-            return "redirect:/admin/recepcionistas";
-        } catch (DataIntegrityViolationException ex) {
-            model.addAttribute("error", DbErrorMessageResolver.resolve(ex));
-            model.addAttribute("clientes", clienteService.findAll());
-            model.addAttribute("setores", setorService.findAllNaoExcluidos());
-            return "admin/recepcionista-edit-form";
-        } catch (Exception e) {
-            model.addAttribute("error", DbErrorMessageResolver.resolve(e));
-            model.addAttribute("setores", setorService.findAllNaoExcluidos());
-            return "admin/recepcionista-edit-form";
         }
     }
 
@@ -135,34 +113,40 @@ public class AdministradorController {
         return "redirect:/admin/recepcionistas";
     }
 
-    @PostMapping("/recepcionistas/criar")
-    public String criarRecepcionista(
+    @PostMapping("/recepcionistas/salvar")
+    public String salvarRecepcionista(
             @Valid @ModelAttribute("form") RecepcionistaForm form,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("setores", setorService.findSetoresSemRecepcionista());
-            return "admin/recepcionista-form-com-usuario";
+            return "admin/recepcionista-form";
         }
         try {
-            recepcionistaService.cadastrarUsuarioERecepcionista(
-                    form.getNome(), form.getEmail(), form.getSenha(),
-                    form.getSetorId(), form.getMatricula(), form.getCpf());
-            redirectAttributes.addFlashAttribute("success", "Recepcionista criado com sucesso");
+            if (form.getUsuarioId() != null) {
+                recepcionistaService.atualizarRecepcionista(form.getUsuarioId(), form.getNome(), form.getEmail(),
+                        form.getSenha(), form.getSetorId(), form.getMatricula(), form.getCpf());
+                redirectAttributes.addFlashAttribute("success", "Recepcionista atualizado com sucesso");
+            } else {
+                recepcionistaService.cadastrarUsuarioERecepcionista(
+                        form.getNome(), form.getEmail(), form.getSenha(),
+                        form.getSetorId(), form.getMatricula(), form.getCpf());
+                redirectAttributes.addFlashAttribute("success", "Recepcionista criado com sucesso");
+            }
             return "redirect:/admin/recepcionistas";
         } catch (DataIntegrityViolationException ex) {
             model.addAttribute("error", DbErrorMessageResolver.resolve(ex));
             model.addAttribute("setores", setorService.findSetoresSemRecepcionista());
-            return "admin/recepcionista-form-com-usuario";
+            return "admin/recepcionista-form";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("setores", setorService.findSetoresSemRecepcionista());
-            return "admin/recepcionista-form-com-usuario";
+            return "admin/recepcionista-form";
         } catch (Exception e) {
             model.addAttribute("error", DbErrorMessageResolver.resolve(e));
             model.addAttribute("setores", setorService.findSetoresSemRecepcionista());
-            return "admin/recepcionista-form-com-usuario";
+            return "admin/recepcionista-form";
         }
     }
 

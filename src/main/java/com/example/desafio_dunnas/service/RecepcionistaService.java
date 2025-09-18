@@ -47,6 +47,8 @@ public class RecepcionistaService {
             throw new IllegalArgumentException("cpf é obrigatório");
         if (cpf.length() != 11)
             throw new IllegalArgumentException("cpf deve ter 11 dígitos");
+        if (!cpf.chars().allMatch(Character::isDigit))
+            throw new IllegalArgumentException("cpf deve conter apenas dígitos numéricos");
 
         String senhaHash = passwordEncoder.encode(senhaPlano);
         recepcionistaRepository.criarUsuarioERecepcionista(nome, email, senhaHash, setorId, matricula, cpf);
@@ -81,6 +83,8 @@ public class RecepcionistaService {
             throw new IllegalArgumentException("cpf é obrigatório");
         if (cpf.length() != 11)
             throw new IllegalArgumentException("cpf deve ter 11 dígitos");
+        if (!cpf.chars().allMatch(Character::isDigit))
+            throw new IllegalArgumentException("cpf deve conter apenas dígitos numéricos");
         String senhaHash = null;
         if (senhaPlano != null && !senhaPlano.isBlank()) {
             senhaHash = passwordEncoder.encode(senhaPlano);

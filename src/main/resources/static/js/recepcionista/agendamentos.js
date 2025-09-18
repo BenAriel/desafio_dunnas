@@ -1,4 +1,3 @@
-// Lógicas da página recepcionista/agendamentos.jsp
 (function () {
   "use strict";
 

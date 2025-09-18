@@ -1,0 +1,29 @@
+package com.example.desafio_dunnas.form.auth;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class EditarClientePublicForm {
+    @NotBlank(message = "Nome é obrigatório")
+    private String nome;
+
+    @Email(message = "Email inválido")
+    @NotBlank(message = "Email é obrigatório")
+    private String email;
+
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 6, message = "Senha deve ter ao menos 6 caracteres")
+    private String novaSenha;
+
+    @NotBlank(message = "Telefone é obrigatório")
+    @Pattern(regexp = "\\d{11}", message = "Telefone deve ter 11 dígitos numéricos")
+    private String telefone;
+
+    private String profissao;
+}

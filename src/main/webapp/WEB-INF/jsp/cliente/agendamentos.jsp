@@ -4,6 +4,7 @@
 <html lang="pt-br">
 <head>
     <title>Meus Agendamentos</title>
+    <meta name="server-now" content="${now}" />
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">

@@ -49,7 +49,7 @@
         <form:errors path="cpf" cssClass="text-red-600 text-sm" />
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex gap-2 justify-between">
         <button type="submit" class="bg-blue-600 text-white rounded px-4 py-2">Salvar</button>
         <a class="text-blue-600" href="<c:url value='/admin'/>">Cancelar</a>
       </div>

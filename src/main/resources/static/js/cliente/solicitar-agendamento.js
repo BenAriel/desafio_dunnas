@@ -1,4 +1,3 @@
-// Cálculo client-side do preço e parcelas (sem reload) para cliente/solicitar-agendamento.jsp
 (function () {
   "use strict";
 
