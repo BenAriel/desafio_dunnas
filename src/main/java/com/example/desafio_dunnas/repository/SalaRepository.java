@@ -17,6 +17,14 @@ import com.example.desafio_dunnas.model.Sala;
 public interface SalaRepository extends JpaRepository<Sala, Long> {
 
         // Consultas que consideram soft delete (apenas salas não excluídas)
+        /**
+         * Lista salas ativas de um setor específico, desconsiderando soft delete.
+         *
+         * @param setorId id do setor
+         * @return lista de salas ativas do setor
+         * @pre {@code setorId} não deve ser nulo
+         * @post Operação apenas leitura
+         */
         @Query("SELECT s FROM Sala s WHERE s.setor.id = :setorId AND s.ativa = true AND s.deletedAt IS NULL ORDER BY s.nome")
         List<Sala> findSalasAtivasPorSetor(@Param("setorId") Long setorId);
 
@@ -36,6 +44,7 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
         Page<Sala> findSalasAtivasDeSetoresAbertos(Pageable pageable);
 
         // Consultas que incluem salas soft deleted (para administração)
+
         @Query("SELECT s FROM Sala s WHERE s.deletedAt IS NULL ORDER BY s.setor.nome, s.nome")
         Page<Sala> findAllNaoExcluidas(Pageable pageable);
 
@@ -46,6 +55,16 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
         Page<Sala> findAllExcluidas(Pageable pageable);
 
         // Procedures para operações CRUD
+        /**
+         * Procedure: cria sala.
+         *
+         * @pre Parâmetros validados no service (nome, valor por hora, capacidade e
+         *      setorId)
+         * @post Sala criada com dados consistentes; rollback em caso de erro
+         * @throws DataIntegrityViolationException em caso de violação de integridade no
+         *                                         banco
+         * @throws DataAccessException             para outros erros de acesso a dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_create_sala(:p_nome, :p_valor_por_hora, :p_capacidade_maxima, :p_setor_id)", nativeQuery = true)
@@ -55,6 +74,15 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
                         @Param("p_capacidade_maxima") Integer capacidadeMaxima,
                         @Param("p_setor_id") Long setorId);
 
+        /**
+         * Procedure: atualiza sala.
+         *
+         * @post Atualiza os campos informados; se {@code ativa} for falso, a sala
+         *       não poderá ser usada em novos agendamentos; rollback em caso de erro
+         * @throws DataIntegrityViolationException em caso de violação de integridade no
+         *                                         banco
+         * @throws DataAccessException             para outros erros de acesso a dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_update_sala(:p_sala_id, :p_nome, :p_valor_por_hora, :p_capacidade_maxima, :p_ativa)", nativeQuery = true)
@@ -65,6 +93,19 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
                         @Param("p_capacidade_maxima") Integer capacidadeMaxima,
                         @Param("p_ativa") Boolean ativa);
 
+        /**
+         * Procedure: soft delete de sala.
+         *
+         * @param salaId    Id da sala a excluir
+         * @param deletedBy Id do usuário que realizou a exclusão
+         * @post Marca a sala como excluída logicamente e registra auditoria; rollback
+         *       em caso de erro
+         * @throws DataIntegrityViolationException em caso de violação de integridade no
+         *                                         banco
+         * @throws DataAccessException             para outros erros de acesso a dados
+         *                                         acesso a
+         *                                         dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_soft_delete_sala(:p_sala_id, :p_deleted_by)", nativeQuery = true)

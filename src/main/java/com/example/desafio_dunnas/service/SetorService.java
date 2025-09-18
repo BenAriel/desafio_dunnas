@@ -88,10 +88,14 @@ public class SetorService {
     }
 
     public void abrirSetor(Long setorId) {
+        if (setorId == null)
+            throw new IllegalArgumentException("setorId é obrigatório");
         setorRepository.abrirSetor(setorId);
     }
 
     public void fecharSetor(Long setorId) {
+        if (setorId == null)
+            throw new IllegalArgumentException("setorId é obrigatório");
         setorRepository.fecharSetor(setorId);
     }
 

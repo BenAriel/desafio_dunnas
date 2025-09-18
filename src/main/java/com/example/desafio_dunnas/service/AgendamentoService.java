@@ -35,18 +35,60 @@ public class AgendamentoService {
 
     public void criarAgendamento(Long salaId, Long clienteId, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim,
             String observacoes) {
+        if (salaId == null)
+            throw new IllegalArgumentException("salaId é obrigatório");
+        if (clienteId == null)
+            throw new IllegalArgumentException("clienteId é obrigatório");
+        if (dataHoraInicio == null || dataHoraFim == null)
+            throw new IllegalArgumentException("datas de início e fim são obrigatórias");
+        if (!dataHoraInicio.isBefore(dataHoraFim))
+            throw new IllegalArgumentException("dataHoraInicio deve ser anterior a dataHoraFim");
+
+        List<Agendamento> conflitos = agendamentoRepository.findConflitosAgendamento(salaId, dataHoraInicio,
+                dataHoraFim);
+        if (conflitos != null && !conflitos.isEmpty()) {
+            throw new IllegalStateException("Conflito de horário com outro agendamento");
+        }
+
         agendamentoRepository.criarAgendamento(salaId, clienteId, dataHoraInicio, dataHoraFim, observacoes);
     }
 
     public void confirmarAgendamento(Long agendamentoId) {
+        if (agendamentoId == null)
+            throw new IllegalArgumentException("agendamentoId é obrigatório");
+        Agendamento a = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
+        if (a.getStatus() != StatusAgendamento.SOLICITADO)
+            throw new IllegalStateException("Apenas solicitações podem ser confirmadas");
+        if (a.getDataHoraInicio() != null && LocalDateTime.now().isAfter(a.getDataHoraInicio()))
+            throw new IllegalStateException("Não é possível confirmar após o início do agendamento");
+
         agendamentoRepository.confirmarAgendamento(agendamentoId);
     }
 
     public void finalizarAgendamento(Long agendamentoId) {
+        if (agendamentoId == null)
+            throw new IllegalArgumentException("agendamentoId é obrigatório");
+        Agendamento a = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
+        if (a.getStatus() != StatusAgendamento.CONFIRMADO)
+            throw new IllegalStateException("Apenas agendamentos confirmados podem ser finalizados");
+        if (a.getDataHoraInicio() != null && LocalDateTime.now().isBefore(a.getDataHoraInicio()))
+            throw new IllegalStateException("Não é possível finalizar antes do horário de início");
+
         agendamentoRepository.finalizarAgendamento(agendamentoId);
     }
 
     public void cancelarAgendamento(Long agendamentoId) {
+        if (agendamentoId == null)
+            throw new IllegalArgumentException("agendamentoId é obrigatório");
+        Agendamento a = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(() -> new IllegalArgumentException("Agendamento não encontrado"));
+        if (a.getDataHoraInicio() != null && !LocalDateTime.now().isBefore(a.getDataHoraInicio()))
+            throw new IllegalStateException("Não é possível cancelar após o horário de início");
+        if (a.getStatus() != StatusAgendamento.SOLICITADO && a.getStatus() != StatusAgendamento.CONFIRMADO)
+            throw new IllegalStateException("Somente solicitações ou confirmados podem ser cancelados");
+
         agendamentoRepository.cancelarAgendamento(agendamentoId);
     }
 

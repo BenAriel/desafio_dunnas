@@ -26,7 +26,7 @@
 
       </div>
     <main class="max-w-6xl mx-auto p-6">
-      <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center">Bem vindo ao módulo de administrador</h1>
+      <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center">Bem vindo ao Painel de administrador</h1>
 
       <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <a href="<c:url value='/admin/recepcionistas'/>" class="group block rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">

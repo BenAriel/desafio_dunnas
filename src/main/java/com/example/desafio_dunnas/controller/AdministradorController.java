@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.example.desafio_dunnas.config.DbErrorMessageResolver;
 import com.example.desafio_dunnas.dto.relatorio.RelatorioFiltroDTO;
@@ -24,8 +25,8 @@ import com.example.desafio_dunnas.form.sala.SalaForm;
 import com.example.desafio_dunnas.form.setor.SetorForm;
 import com.example.desafio_dunnas.model.Sala;
 import com.example.desafio_dunnas.model.Setor;
+import com.example.desafio_dunnas.model.Usuario;
 import com.example.desafio_dunnas.model.Cliente;
-import com.example.desafio_dunnas.service.AuthService;
 import com.example.desafio_dunnas.service.RecepcionistaService;
 import com.example.desafio_dunnas.service.SalaService;
 import com.example.desafio_dunnas.service.SetorService;
@@ -43,7 +44,6 @@ public class AdministradorController {
     private final SetorService setorService;
     private final SalaService salaService;
     private final RelatorioService relatorioAdminFacadeService;
-    private final AuthService authUtils;
 
     private final ClienteService clienteService;
 
@@ -249,9 +249,10 @@ public class AdministradorController {
     }
 
     @PostMapping("/setores/excluir")
-    public String excluirSetor(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+    public String excluirSetor(@RequestParam Long id, RedirectAttributes redirectAttributes,
+            @AuthenticationPrincipal Usuario usuario) {
         try {
-            Long adminId = authUtils.requireUsuarioId();
+            Long adminId = usuario != null ? usuario.getId() : null;
             setorService.softDeleteSetor(id, adminId);
             redirectAttributes.addFlashAttribute("success", "Setor excluído com sucesso");
         } catch (DataIntegrityViolationException ex) {
@@ -265,9 +266,10 @@ public class AdministradorController {
     }
 
     @PostMapping("/setores/reativar")
-    public String reativarSetor(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+    public String reativarSetor(@RequestParam Long id, RedirectAttributes redirectAttributes,
+            @AuthenticationPrincipal Usuario usuario) {
         try {
-            Long adminId = authUtils.requireUsuarioId();
+            Long adminId = usuario != null ? usuario.getId() : null;
             setorService.reativarSetor(id, adminId);
             redirectAttributes.addFlashAttribute("success", "Setor reativado com sucesso");
         } catch (DataIntegrityViolationException ex) {
@@ -362,9 +364,10 @@ public class AdministradorController {
     }
 
     @PostMapping("/salas/excluir")
-    public String excluirSala(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+    public String excluirSala(@RequestParam Long id, RedirectAttributes redirectAttributes,
+            @AuthenticationPrincipal Usuario usuario) {
         try {
-            Long adminId = authUtils.requireUsuarioId();
+            Long adminId = usuario != null ? usuario.getId() : null;
             salaService.softDeleteSala(id, adminId);
             redirectAttributes.addFlashAttribute("success", "Sala excluída com sucesso");
         } catch (DataIntegrityViolationException ex) {

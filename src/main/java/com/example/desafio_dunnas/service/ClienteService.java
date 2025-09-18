@@ -3,10 +3,13 @@ package com.example.desafio_dunnas.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.desafio_dunnas.model.Cliente;
+import com.example.desafio_dunnas.model.Usuario;
 import com.example.desafio_dunnas.repository.ClienteRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +20,6 @@ public class ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthService authUtils;
 
     public List<Cliente> findAll() {
         return clienteRepository.findAll();
@@ -41,7 +43,10 @@ public class ClienteService {
     }
 
     public Optional<Cliente> getClienteLogado() {
-        return authUtils.getUsuarioLogado()
-                .flatMap(u -> clienteRepository.findByUsuarioId(u.getUserId()));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Usuario usuario) {
+            return clienteRepository.findByUsuarioId(usuario.getId());
+        }
+        return Optional.empty();
     }
 }

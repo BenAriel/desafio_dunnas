@@ -75,6 +75,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sala</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora Início</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora Fim</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                         </tr>
                     </thead>
@@ -86,6 +87,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.sala.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraInicio}">${agendamento.dataHoraInicio}</span></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraFim}">${agendamento.dataHoraFim}</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">R$ ${agendamento.valorTotal}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <form action="<c:url value='/recepcionista/agendamentos/confirmar'/>" method="post" class="inline">
                                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
@@ -195,6 +197,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sala</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora Início</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora Fim</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                         </tr>
                     </thead>
@@ -206,6 +209,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${agendamento.sala.nome}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraInicio}">${agendamento.dataHoraInicio}</span></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span data-datetime="${agendamento.dataHoraFim}">${agendamento.dataHoraFim}</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">R$ ${agendamento.valorTotal}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <form action="<c:url value='/recepcionista/agendamentos/finalizar'/>" method="post" class="inline">
                                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
@@ -213,7 +217,8 @@
                                         <input type="hidden" name="setorId" value="${setorId}" />
                                         <button type="submit" 
                                                 class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm btn-finalizar"
-                                                data-inicio="${agendamento.dataHoraInicio}">
+                                                data-inicio="${agendamento.dataHoraInicio}"
+                                                data-fim="${agendamento.dataHoraFim}">
                                             Finalizar
                                         </button>
                                     </form>
@@ -364,6 +369,40 @@
                         var ms = parseInt(el.getAttribute('data-auto-dismiss')) || 3000;
                         setTimeout(function(){ el.style.display = 'none'; }, ms);
                     });
+
+                // Intercepta finalize antes do horário de fim para exibir confirmação
+                document.querySelectorAll('.btn-finalizar').forEach(function(btn){
+                    btn.addEventListener('click', function(e){
+                        try {
+                            var rawFim = btn.getAttribute('data-fim');
+                            if (!rawFim) return; 
+                            var fim = (window.Utils && typeof window.Utils.parseIsoToLocal === 'function')
+                                ? window.Utils.parseIsoToLocal(rawFim)
+                                : new Date(rawFim);
+                            if (!fim || isNaN(fim.getTime())) {
+                               
+                                fim = new Date(String(rawFim).replace(' ', 'T'));
+                            }
+                            var agoraLocal = new Date();
+                            if (fim && !isNaN(fim.getTime()) && agoraLocal < fim) {
+                                e.preventDefault();
+                                var form = btn.closest('form');
+                                var msg = 'O horário de término ainda não chegou. Deseja finalizar mesmo assim?';
+                                if (window.Utils && typeof window.Utils.openConfirmModal === 'function') {
+                                    window.Utils.openConfirmModal(msg, function(ok){
+                                        if (ok && form) {
+                                            try { form.submit(); } catch (_) {}
+                                        }
+                                    });
+                                } else {
+                                    if (confirm(msg)) {
+                                        if (form) form.submit();
+                                    }
+                                }
+                            }
+                        } catch (_) {}
+                    }, true);
+                });
             } catch (e) {  }
         })();
 

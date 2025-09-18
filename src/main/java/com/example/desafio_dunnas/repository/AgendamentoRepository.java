@@ -28,6 +28,18 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
        Page<Agendamento> findBySetorIdAndStatus(@Param("setorId") Long setorId,
                      @Param("status") StatusAgendamento status, Pageable pageable);
 
+       /**
+        * Busca conflitos de agendamento confirmados/finalizados que colidem com o
+        * período
+        * informado.
+        *
+        * @param salaId     id da sala
+        * @param dataInicio início do período
+        * @param dataFim    fim do período
+        * @return lista de agendamentos conflitantes
+        * @pre Datas válidas e {@code dataFim >= dataInicio}
+        * @post Leitura sem efeitos colaterais
+        */
        @Query("SELECT a FROM Agendamento a WHERE a.sala.id = :salaId AND a.status IN ('CONFIRMADO', 'FINALIZADO') " +
                      "AND ((a.dataHoraInicio <= :dataFim AND a.dataHoraFim >= :dataInicio))")
        List<Agendamento> findConflitosAgendamento(@Param("salaId") Long salaId,
@@ -56,12 +68,20 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
                      @Param("dataFim") LocalDateTime dataFim,
                      Pageable pageable);
 
-
        @Query("SELECT a FROM Agendamento a WHERE a.sala.id = :salaId AND a.status = 'CONFIRMADO' " +
                      "AND a.dataHoraFim >= :agora ORDER BY a.dataHoraInicio")
        List<Agendamento> findConfirmadosPorSalaComFimNoFuturo(@Param("salaId") Long salaId,
                      @Param("agora") LocalDateTime agora);
 
+       /**
+        * Procedure: cria agendamento.
+        *
+        * @pre Parâmetros validados no service; sem conflitos de horário
+        * @post Agendamento criado; rollback em caso de erro
+        * @throws DataIntegrityViolationException em caso de violação de integridade no
+        *                                         banco
+        * @throws DataAccessException             para outros erros de acesso a dados
+        */
        @Transactional
        @Modifying
        @Query(value = "CALL pr_create_agendamento(:p_sala_id, :p_cliente_id, :p_data_hora_inicio, :p_data_hora_fim, :p_observacoes)", nativeQuery = true)
@@ -72,16 +92,39 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
                      @Param("p_data_hora_fim") LocalDateTime dataHoraFim,
                      @Param("p_observacoes") String observacoes);
 
+       /**
+        * Procedure: confirma agendamento.
+        *
+        * @post Status alterado para CONFIRMADO; rollback em caso de erro
+        * @throws org.springframework.dao.DataAccessException para erros de acesso a
+        *                                                     dados
+        */
        @Transactional
        @Modifying
        @Query(value = "CALL pr_confirmar_agendamento(:p_agendamento_id)", nativeQuery = true)
        void confirmarAgendamento(@Param("p_agendamento_id") Long agendamentoId);
 
+       /**
+        * Procedure: finaliza agendamento.
+        *
+        * @post Status alterado para FINALIZADO e transações geradas, conforme regra;
+        *       rollback em caso de erro
+        * @throws org.springframework.dao.DataAccessException para erros de acesso a
+        *                                                     dados
+        */
        @Transactional
        @Modifying
        @Query(value = "CALL pr_finalizar_agendamento(:p_agendamento_id)", nativeQuery = true)
        void finalizarAgendamento(@Param("p_agendamento_id") Long agendamentoId);
 
+       /**
+        * Procedure: cancela agendamento.
+        *
+        * @post Status alterado para CANCELADO e histórico atualizado; rollback em caso
+        *       de erro
+        * @throws org.springframework.dao.DataAccessException para erros de acesso a
+        *                                                     dados
+        */
        @Transactional
        @Modifying
        @Query(value = "CALL pr_cancelar_agendamento(:p_agendamento_id)", nativeQuery = true)

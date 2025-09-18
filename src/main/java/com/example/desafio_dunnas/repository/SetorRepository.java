@@ -17,6 +17,7 @@ import com.example.desafio_dunnas.model.Setor;
 public interface SetorRepository extends JpaRepository<Setor, Long> {
 
         // Consultas que consideram soft delete (apenas setores não excluídos)
+
         @Query("SELECT s FROM Setor s WHERE s.aberto = true AND s.deletedAt IS NULL ORDER BY s.nome")
         List<Setor> findByAbertoTrue();
 
@@ -33,6 +34,15 @@ public interface SetorRepository extends JpaRepository<Setor, Long> {
         @Query("SELECT s FROM Setor s WHERE s.deletedAt IS NOT NULL ORDER BY s.deletedAt DESC")
         Page<Setor> findAllExcluidos(Pageable pageable);
 
+        /**
+         * Procedure: cria setor.
+         *
+         * @pre Parâmetros validados no service
+         * @post Setor criado; rollback em caso de erro
+         * @throws DataIntegrityViolationException em caso de violação de integridade no
+         *                                         banco
+         * @throws DataAccessException             para outros erros de acesso a dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_create_setor(:p_nome, :p_caixa, :p_aberto)", nativeQuery = true)
@@ -40,16 +50,36 @@ public interface SetorRepository extends JpaRepository<Setor, Long> {
                         @Param("p_caixa") java.math.BigDecimal caixa,
                         @Param("p_aberto") Boolean aberto);
 
+        /**
+         * Procedure: marca setor como aberto.
+         *
+         * @post Setor fica disponível para agendamentos; rollback em caso de erro
+         * @throws DataAccessException para erros de acesso a dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_abrir_setor(:p_setor_id)", nativeQuery = true)
         void abrirSetor(@Param("p_setor_id") Long setorId);
 
+        /**
+         * Procedure: marca setor como fechado.
+         *
+         * @post Setor deixa de aceitar agendamentos; rollback em caso de erro
+         * @throws DataAccessException para erros de acesso a dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_fechar_setor(:p_setor_id)", nativeQuery = true)
         void fecharSetor(@Param("p_setor_id") Long setorId);
 
+        /**
+         * Procedure: atualiza dados básicos do setor.
+         *
+         * @post Nome/caixa/status atualizados; rollback em caso de erro
+         * @throws DataIntegrityViolationException em caso de violação de integridade no
+         *                                         banco
+         * @throws DataAccessException             para outros erros de acesso a dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_update_setor(:p_setor_id, :p_nome, :p_caixa, :p_aberto)", nativeQuery = true)
@@ -59,11 +89,24 @@ public interface SetorRepository extends JpaRepository<Setor, Long> {
                         @Param("p_caixa") java.math.BigDecimal caixa,
                         @Param("p_aberto") Boolean aberto);
 
+        /**
+         * Procedure: soft delete de setor com auditoria.
+         *
+         * @post Marca como excluído logicamente e registra auditoria; rollback em caso
+         *       de erro
+         * @throws DataAccessException para erros de acesso a dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_soft_delete_setor(:p_setor_id, :p_deleted_by)", nativeQuery = true)
         void softDeleteSetor(@Param("p_setor_id") Long setorId, @Param("p_deleted_by") Long deletedBy);
 
+        /**
+         * Procedure: reativa setor previamente excluído.
+         *
+         * @post Remove marca de exclusão e registra auditoria; rollback em caso de erro
+         * @throws DataAccessException para erros de acesso a dados
+         */
         @Transactional
         @Modifying
         @Query(value = "CALL pr_reativar_setor(:p_setor_id, :p_reativado_by)", nativeQuery = true)
