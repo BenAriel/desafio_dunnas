@@ -5,6 +5,7 @@
 - Visão geral do sistema
 - Funcionalidades por papel (Admin, Recepcionista, Cliente)
 - Arquitetura (Stack e MVC)
+- Estrutura de pastas do projeto
 - Modelo de dados (diagrama e tabelas)
 - Regras de negócio: no Banco vs na Aplicação
 - Fluxos principais (agendar, confirmar, finalizar, cancelar)
@@ -37,6 +38,30 @@ Padrão MVC:
 - Models (JPA Entities) em `.../model`
 - Views JSP em `src/main/webapp/WEB-INF/jsp`
 
+## Estrutura de pastas do projeto
+
+- `src/main/java/com/example/desafio_dunnas/`
+  - `controller/`: recebe requisições HTTP, aplica autorização, aciona serviços e retorna Views JSP.
+  - `service/`: orquestra a lógica de aplicação, valida entradas básicas e delega operações críticas ao banco via repositórios.
+  - `repository/`: interfaces Spring Data JPA; usa queries nativas para chamar procedures/functions do banco.
+  - `model/` (ou `entity/`): mapeamento JPA das tabelas (Entidades e relacionamentos).
+- `src/main/resources/`
+  - `application.properties`: configurações do Spring, datasource, Flyway e ViewResolver.
+  - `db/migration/`: scripts Flyway versionados (V1**...V28**) com schema, regras e dados de exemplo.
+  - `templates/`: recursos auxiliares (se aplicável) e estáticos.
+- `src/main/webapp/WEB-INF/jsp/`: páginas JSP separadas por papel (admin, recepcionista, cliente).
+- `src/test/java/`: testes unitários/de integração (quando presentes).
+- `pom.xml`: dependências e plugins Maven.
+- `mvnw`, `mvnw.cmd`: wrappers Maven para build reprodutível.
+
+Escolhas de arquitetura
+
+- MVC no Spring: separa claramente camadas de entrada (controllers), orquestração (services) e acesso a dados (repositories), mantendo Views desacopladas.
+- Regras críticas no banco: garante consistência, concorrência e atomicidade próximas aos dados; a aplicação chama procedures de alto nível.
+- JSP + JSTL: escolha simples e integrada ao Spring Boot para o desafio; fácil renderização server-side.
+- Flyway: versiona o banco, reproduzindo o ambiente com segurança e auditabilidade.
+- Soft delete em entidades sensíveis (salas/setores) para preservar histórico sem quebrar FKs.
+
 ## Funcionalidades por papel
 
 - Administrador
@@ -63,6 +88,19 @@ Tabelas centrais:
 - `tb_agendamentos` (sala, cliente, início/fim, valores, status, datas)
 - `tb_transacoes` (agendamento, valor, tipo `SINAL|PAGAMENTO_FINAL|REEMBOLSO`, status)
 - `tb_historico_agendamentos` (auditoria de mudanças de status)
+
+### Diagrama ER
+
+O diagrama entidade-relacionamento (extraído do PostgreSQL) está abaixo para referência rápida das relações entre tabelas:
+
+![Diagrama ER](diagrama.png)
+
+Principais relações:
+
+- `tb_setores` 1..N `tb_salas`
+- `tb_salas` 1..N `tb_agendamentos`
+- `tb_clientes` 1..N `tb_agendamentos`
+- `tb_agendamentos` 1..N `tb_transacoes`
 
 ## Regras de negócio (Banco vs Aplicação)
 
@@ -107,6 +145,7 @@ Com isso, >50% da lógica de negócio reside no banco, atendendo ao desafio.
 
 - Disponível apenas para agendamentos `CONFIRMADO` cujo horário de início já passou.
 - O sistema impede finalizar fora de ordem: se existir um agendamento anterior na mesma sala ainda `CONFIRMADO`, ele deve ser finalizado primeiro.
+- O recepcionista pode finalizar o atendimento antes da hora de fim, mas aparecerá um modal de confirmação.
 - Ao finalizar, o sistema registra o pagamento final (valor restante), marca a data de finalização e atualiza o caixa do setor.
 
 4. Cancelamento
@@ -120,6 +159,12 @@ Com isso, >50% da lógica de negócio reside no banco, atendendo ao desafio.
 - Abrir setor requer que exista um recepcionista responsável; ao abrir, as salas tornam-se disponíveis para novas solicitações e confirmações.
 - Não é permitido fechar o setor se houver solicitações pendentes ou agendamentos `CONFIRMADO` no período futuro.
 - Quando o setor está fechado, novas solicitações e confirmações dependentes do setor são bloqueadas.
+
+6. Atendimento no balcão (Agendamento instantâneo)
+
+- O recepcionista realiza um agendamento diretamente no balcão para início imediato ou próximo, sem passar pelo status `SOLICITADO`.
+- O fluxo combina criação e confirmação em uma única ação: o sistema cria o agendamento, valida disponibilidade e regras do setor, e já confirma no mesmo passo.
+- Efeitos: o status final fica como `CONFIRMADO`, o sinal é registrado, e o caixa do setor é atualizado. A finalização segue o fluxo normal posteriormente.
 
 ## Relatórios e caixa
 
@@ -196,64 +241,3 @@ Perfis e configurações:
 - Caixa: trigger `tr_transacao_confirmada_credito` (crédito/débito)
 - Abertura/Fechamento: `pr_abrir_setor`, `pr_fechar_setor`
 - Soft delete: `pr_soft_delete_sala`, `pr_soft_delete_setor`, `pr_reativar_setor`
-
-## Como e onde cada funcionalidade foi aplicada (resumo prático)
-
-O projeto segue MVC no Spring e centraliza as regras críticas no banco (procedures, functions e triggers). Abaixo, um mapa simples.
-
-O que é uma procedure?
-
-- Uma procedure (stored procedure) é um bloco de código SQL/PLpgSQL armazenado no banco que você executa com `CALL nome_procedure(parametros)`. Ela permite agrupar várias operações (validações, inserções/atualizações, cálculos) numa transação atômica e próxima dos dados, reduzindo problemas de concorrência e garantindo regras mesmo quando chamadas de diferentes pontos da aplicação.
-
-Como chamamos procedures aqui?
-
-- Pela camada de repositório (Spring Data JPA) com `@Query(nativeQuery = true)` e `CALL ...`. Ex.: `AgendamentoRepository.criarAgendamento`, `confirmarAgendamento`, `finalizarAgendamento`, `cancelarAgendamento`; `SetorRepository.abrirSetor`, `fecharSetor`.
-
-Funcionalidade: Solicitar agendamento (Cliente)
-
-- Controller: `ClienteController` (`/cliente/agendamentos/solicitar`)
-- Service: `AgendamentoService.criarAgendamento`
-- Repository: `AgendamentoRepository.criarAgendamento`
-- Banco: `pr_create_agendamento` (V13/V24) faz validações (setor aberto, sala ativa, tempo futuro), verifica conflito via `fn_verificar_sala_disponivel`/`fn_verificar_conflito_agendamento` e calcula `valor_total/sinal/restante` por minuto (`fn_calcular_valor_*`). Por que no BD? Para garantir consistência e concorrência controlada na origem.
-
-Funcionalidade: Confirmar agendamento (Recepcionista e instantâneo)
-
-- Controller: `RecepcionistaController` (`POST /agendamentos/confirmar` e fluxo instantâneo)
-- Service: `AgendamentoService.confirmarAgendamento`
-- Repository: `AgendamentoRepository.confirmarAgendamento`
-- Banco: `pr_confirmar_agendamento` (V17/V24) valida `SOLICITADO` e setor aberto (`fn_validar_confirmacao_agendamento`); cria/garante transação `SINAL` já `CONFIRMADA`; trigger em `tb_transacoes` credita o caixa. Por que no BD? Para evitar confirmações incorretas e centralizar o crédito do caixa.
-
-Funcionalidade: Finalizar agendamento (Recepcionista)
-
-- Controller: `RecepcionistaController` (`POST /agendamentos/finalizar`)
-- Service: `AgendamentoService.finalizarAgendamento`
-- Repository: `AgendamentoRepository.finalizarAgendamento`
-- Banco: `pr_finalizar_agendamento` (V21/V28) valida que já iniciou e que não existe confirmado anterior na mesma sala (ordem). Cria `PAGAMENTO_FINAL` `CONFIRMADA`; trigger credita caixa. Por que no BD? Para manter integridade temporal e financeira.
-
-Funcionalidade: Cancelar agendamento (Cliente/Recepcionista)
-
-- Controllers: `ClienteController` (`POST /cliente/agendamentos/cancelar`), `RecepcionistaController` (`POST /recepcionista/agendamentos/cancelar`)
-- Service: `AgendamentoService.cancelarAgendamento`
-- Repository: `AgendamentoRepository.cancelarAgendamento`
-- Banco: `pr_cancelar_agendamento` (V23) — se `SOLICITADO`, só troca para `CANCELADO`; se `CONFIRMADO` e antes do início, cancela e gera `REEMBOLSO` `CONFIRMADA`; trigger debita caixa. Por que no BD? Para garantir política de cancelamento e reflexo automático no caixa.
-
-Funcionalidade: Abrir/Fechar setor (Recepcionista)
-
-- Controller: `RecepcionistaController` (`/setor/abrir` e `/setor/fechar`)
-- Service: `SetorService.abrirSetor`/`fecharSetor`
-- Repository: `SetorRepository.abrirSetor`/`fecharSetor`
-- Banco: `pr_abrir_setor` (V11) exige recepcionista; `pr_fechar_setor` (V24) bloqueia se houver `SOLICITADO/CONFIRMADO` no setor. Por que no BD? Para impedir estados inválidos independente da origem da chamada.
-
-Funcionalidade: Soft delete de sala e setor (Admin)
-
-- Services/Repos: `SetorService.softDeleteSetor`/`reativarSetor`; `SalaService` análogo para sala
-- Banco: `pr_soft_delete_setor` e `pr_soft_delete_sala` (V25) verificam inexistência de agendamentos ativos, marcam `deleted_at` e ajustam vínculos; functions/consultas ignoram soft-deletados. Por que no BD? Para manter histórico e integridade de FKs.
-
-Funcionalidade: Caixa do setor
-
-- Banco: trigger `tr_transacao_confirmada_credito` (V22/V23) atualiza `tb_setores.caixa` quando uma transação `SINAL`/`PAGAMENTO_FINAL`/`REEMBOLSO` muda (ou nasce) com `status=CONFIRMADA` (INSERT/UPDATE). Por que no BD? Para consistência financeira automática.
-
-Funcionalidade: Relatórios
-
-- Service: `RelatorioService` (consome consultas/funções do BD)
-- Banco: `fn_relatorio_agendamentos_setor`, `fn_relatorio_transacoes_setor`, `fn_resumo_financeiro_setor`, `fn_estatisticas_ocupacao_sala` (V12). Por que no BD? Para performance e reutilização de lógica SQL.
