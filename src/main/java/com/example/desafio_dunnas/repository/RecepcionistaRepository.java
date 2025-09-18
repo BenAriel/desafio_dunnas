@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.desafio_dunnas.model.Recepcionista;
 
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +21,9 @@ public interface RecepcionistaRepository extends JpaRepository<Recepcionista, Lo
     @Override
     @EntityGraph(attributePaths = { "usuario", "setor" })
     List<Recepcionista> findAll();
+
+    @EntityGraph(attributePaths = { "usuario", "setor" })
+    Page<Recepcionista> findAll(Pageable pageable);
 
     @Modifying
     @Transactional
@@ -45,4 +50,9 @@ public interface RecepcionistaRepository extends JpaRepository<Recepcionista, Lo
             @Param("p_setor_id") Long setorId,
             @Param("p_matricula") String matricula,
             @Param("p_cpf") String cpf);
+
+    @Modifying
+    @Transactional
+    @Query(value = "CALL pr_delete_recepcionista(:p_recepcionista_id)", nativeQuery = true)
+    void excluirRecepcionistaComFechamento(@Param("p_recepcionista_id") Long recepcionistaId);
 }

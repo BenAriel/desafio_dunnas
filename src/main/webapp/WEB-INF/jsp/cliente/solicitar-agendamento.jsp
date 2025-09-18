@@ -30,9 +30,11 @@
             <p class="text-sm text-blue-700">
                 • Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
                 • Estimativa: <span id="estimativaResumo" class="font-semibold">Selecione início e fim</span><br>
-                • Sinal (50%): <span id="estimativaSinal" class="font-semibold">—</span> • Restante (50%): <span id="estimativaRestante" class="font-semibold">—</span>
+                • Sinal (50%): <span id="estimativaSinal" class="font-semibold">—</span>  Restante (50%): <span id="estimativaRestante" class="font-semibold">—</span>
             </p>
         </div>
+
+        
 
         <div class="bg-white shadow rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Informações da Sala</h2>
@@ -55,6 +57,28 @@
                 </div>
             </div>
         </div>
+        <c:if test="${not empty confirmados}">
+                <div class="bg-white border rounded-lg p-4 mb-6">
+                    <h3 class="text-sm font-medium text-gray-800 mb-2">Horários já confirmados nesta sala</h3>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Início</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fim</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <c:forEach var="c" items="${confirmados}">
+                                <tr>
+                                    <td class="px-4 py-2 text-sm"><span data-datetime="${c.dataHoraInicio}">${c.dataHoraInicio}</span></td>
+                                    <td class="px-4 py-2 text-sm"><span data-datetime="${c.dataHoraFim}">${c.dataHoraFim}</span></td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                    <p class="text-xs text-gray-500 mt-2">Dica: escolha um intervalo que não conflite com os horários acima.</p>
+                </div>
+                </c:if>
         <div class="bg-white shadow rounded-lg p-6">
             <form:form modelAttribute="form" action="${pageContext.request.contextPath}/cliente/agendamentos/solicitar" method="post">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
@@ -94,39 +118,7 @@
                               cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                 </div>
 
-                <!-- Informações sobre Pagamento (texto explicativo) -->
-                <div class="bg-blue-50 p-4 rounded-lg mb-6">
-                    <h3 class="text-sm font-medium text-blue-800 mb-2">Informações sobre Pagamento</h3>
-                    <p class="text-sm text-blue-700">
-                        • O valor total é calculado automaticamente (valor/hora × minutos proporcionais).<br>
-                        • Sinal (50%) é pago na confirmação e o restante (50%) na finalização.
-                    </p>
-                </div>
-
-                <c:if test="${not empty confirmados}">
-                <div class="bg-white border rounded-lg p-4 mb-6">
-                    <h3 class="text-sm font-medium text-gray-800 mb-2">Horários já confirmados nesta sala</h3>
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Início</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fim</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <c:forEach var="c" items="${confirmados}">
-                                <tr>
-                                    <td class="px-4 py-2 text-sm"><span data-datetime="${c.dataHoraInicio}">${c.dataHoraInicio}</span></td>
-                                    <td class="px-4 py-2 text-sm"><span data-datetime="${c.dataHoraFim}">${c.dataHoraFim}</span></td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                    <p class="text-xs text-gray-500 mt-2">Dica: escolha um intervalo que não conflite com os horários acima.</p>
-                </div>
-                </c:if>
-
-                <div class="flex gap-3">
+                <div class="flex gap-3 justify-between">
                     <button type="submit" 
                             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
                         Solicitar Agendamento
@@ -148,10 +140,11 @@
                 const resumo = document.getElementById('estimativaResumo');
                 const sinalEl = document.getElementById('estimativaSinal');
                 const restanteEl = document.getElementById('estimativaRestante');
-                const valorPorHora = Number(('${sala.valorPorHora}' || '0').replace(',', '.')) || 0;
+                const valorPorHora = Number(('${sala.valorPorHora}' || '0').toString().replace(',', '.')) || 0;
                 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
                 function recalc() {
+                    if (!resumo || !sinalEl || !restanteEl) return;
                     const i = ini && ini.value ? new Date(ini.value) : null;
                     const f = fim && fim.value ? new Date(fim.value) : null;
                     if (!i || !f || isNaN(i.getTime()) || isNaN(f.getTime())) {
@@ -177,6 +170,8 @@
 
                 ini && ini.addEventListener('change', recalc);
                 fim && fim.addEventListener('change', recalc);
+                ini && ini.addEventListener('input', recalc);
+                fim && fim.addEventListener('input', recalc);
                 // Recalcula se já vier com valores preenchidos (ex: erro de validação)
                 recalc();
             })();

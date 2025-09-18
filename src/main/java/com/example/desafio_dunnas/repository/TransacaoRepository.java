@@ -1,7 +1,8 @@
 package com.example.desafio_dunnas.repository;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,9 +17,10 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
        @Query("SELECT t FROM Transacao t WHERE t.agendamento.sala.setor.id = :setorId " +
                      "AND t.dataTransacao >= :dataInicio AND t.dataTransacao <= :dataFim " +
                      "AND t.status = 'CONFIRMADA' ORDER BY t.dataTransacao DESC")
-       List<Transacao> findTransacoesConfirmadasPorPeriodo(@Param("setorId") Long setorId,
+       Page<Transacao> findTransacoesConfirmadasPorPeriodo(@Param("setorId") Long setorId,
                      @Param("dataInicio") LocalDateTime dataInicio,
-                     @Param("dataFim") LocalDateTime dataFim);
+                     @Param("dataFim") LocalDateTime dataFim,
+                     Pageable pageable);
 
        @Query("SELECT SUM(t.valor) FROM Transacao t WHERE t.agendamento.sala.setor.id = :setorId " +
                      "AND t.dataTransacao >= :dataInicio AND t.dataTransacao <= :dataFim " +
@@ -29,9 +31,10 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
 
        @Query("SELECT t FROM Transacao t WHERE t.dataTransacao >= :dataInicio AND t.dataTransacao <= :dataFim " +
                      "AND t.status = 'CONFIRMADA' ORDER BY t.dataTransacao DESC")
-       List<Transacao> findTransacoesConfirmadasPorPeriodoGlobal(
+       Page<Transacao> findTransacoesConfirmadasPorPeriodoGlobal(
                      @Param("dataInicio") LocalDateTime dataInicio,
-                     @Param("dataFim") LocalDateTime dataFim);
+                     @Param("dataFim") LocalDateTime dataFim,
+                     Pageable pageable);
 
        @Query("SELECT SUM(t.valor) FROM Transacao t WHERE t.dataTransacao >= :dataInicio AND t.dataTransacao <= :dataFim "
                      +

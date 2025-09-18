@@ -10,8 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-import com.example.desafio_dunnas.api.mapper.UsuarioMapper;
-import com.example.desafio_dunnas.form.usuario.UsuarioResponse;
+import com.example.desafio_dunnas.dto.usuario.UsuarioResponse;
+import com.example.desafio_dunnas.mapper.UsuarioMapper;
 import com.example.desafio_dunnas.model.Usuario;
 
 import jakarta.servlet.http.HttpServletRequest;

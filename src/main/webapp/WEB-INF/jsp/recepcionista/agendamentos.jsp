@@ -92,7 +92,8 @@
                                         <input type="hidden" name="agendamentoId" value="${agendamento.id}" />
                                         <input type="hidden" name="setorId" value="${setorId}" />
                                         <button type="submit" 
-                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
+                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm btn-confirmar"
+                                                data-inicio="${agendamento.dataHoraInicio}">
                                             Confirmar
                                         </button>
                                     </form>
@@ -100,9 +101,9 @@
                                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                         <input type="hidden" name="agendamentoId" value="${agendamento.id}" />
                                         <input type="hidden" name="setorId" value="${setorId}" />
-                                        <button type="submit" 
-                                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
-                                                onclick="return confirm('Tem certeza que deseja cancelar esta solicitação?')">
+                    <button type="submit" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                        data-confirm="Tem certeza que deseja cancelar esta solicitação?">
                                             Cancelar
                                         </button>
                                     </form>
@@ -112,6 +113,74 @@
                     </tbody>
                 </table>
             </div>
+            <c:if test="${solicitadosPage != null && solicitadosPage.totalPages > 1}">
+                <nav class="mt-4 flex items-center justify-between" aria-label="Paginação">
+                    <div class="text-sm text-gray-600">
+                        Página <span class="font-semibold">${solicitadosPage.number + 1}</span> de <span class="font-semibold">${solicitadosPage.totalPages}</span>
+                    </div>
+                    <div class="inline-flex -space-x-px rounded-md shadow-sm" role="group">
+                        <c:choose>
+                            <c:when test="${solicitadosPage.number > 0}">
+                                <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=${solicitadosPage.number - 1}&size=${solicitadosPage.size}'/>"
+                                   class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-l-md">Anterior</a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-l-md cursor-not-allowed">Anterior</span>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:choose>
+                            <c:when test="${solicitadosPage.totalPages <= 3}">
+                                <c:forEach var="i" begin="0" end="${solicitadosPage.totalPages - 1}">
+                                    <c:choose>
+                                        <c:when test="${i == solicitadosPage.number}">
+                                            <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${i + 1}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=${i}&size=${solicitadosPage.size}'/>"
+                                               class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${i + 1}</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <c:choose>
+                                    <c:when test="${solicitadosPage.number == 0}">
+                                        <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">1</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=0&size=${solicitadosPage.size}'/>"
+                                           class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">1</a>
+                                    </c:otherwise>
+                                </c:choose>
+                                <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                <c:if test="${solicitadosPage.number > 0 && solicitadosPage.number < solicitadosPage.totalPages - 1}">
+                                    <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${solicitadosPage.number + 1}</span>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                </c:if>
+                                <c:set var="lastIndex" value="${solicitadosPage.totalPages - 1}" />
+                                <c:choose>
+                                    <c:when test="${solicitadosPage.number == lastIndex}">
+                                        <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${solicitadosPage.totalPages}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=${lastIndex}&size=${solicitadosPage.size}'/>"
+                                           class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${solicitadosPage.totalPages}</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:choose>
+                            <c:when test="${solicitadosPage.number + 1 < solicitadosPage.totalPages}">
+                                <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=${solicitadosPage.number + 1}&size=${solicitadosPage.size}'/>"
+                                   class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-r-md">Próxima</a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-r-md cursor-not-allowed">Próxima</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </nav>
+            </c:if>
         </div>
 
      
@@ -143,7 +212,8 @@
                                         <input type="hidden" name="agendamentoId" value="${agendamento.id}" />
                                         <input type="hidden" name="setorId" value="${setorId}" />
                                         <button type="submit" 
-                                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm btn-finalizar"
+                                                data-inicio="${agendamento.dataHoraInicio}">
                                             Finalizar
                                         </button>
                                     </form>
@@ -151,9 +221,9 @@
                                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                         <input type="hidden" name="agendamentoId" value="${agendamento.id}" />
                                         <input type="hidden" name="setorId" value="${setorId}" />
-                                        <button type="submit" 
-                                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
-                                                onclick="return confirm('Tem certeza que deseja cancelar este agendamento confirmado? O valor de sinal será estornado do caixa.')">
+                    <button type="submit" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                        data-confirm="Tem certeza que deseja cancelar este agendamento confirmado? O valor de sinal será estornado do caixa.">
                                             Cancelar
                                         </button>
                                     </form>
@@ -163,6 +233,74 @@
                     </tbody>
                 </table>
             </div>
+            <c:if test="${confirmadosPage != null && confirmadosPage.totalPages > 1}">
+                <nav class="mt-4 flex items-center justify-between" aria-label="Paginação">
+                    <div class="text-sm text-gray-600">
+                        Página <span class="font-semibold">${confirmadosPage.number + 1}</span> de <span class="font-semibold">${confirmadosPage.totalPages}</span>
+                    </div>
+                    <div class="inline-flex -space-x-px rounded-md shadow-sm" role="group">
+                        <c:choose>
+                            <c:when test="${confirmadosPage.number > 0}">
+                                <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=${confirmadosPage.number - 1}&size=${confirmadosPage.size}'/>"
+                                   class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-l-md">Anterior</a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-l-md cursor-not-allowed">Anterior</span>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:choose>
+                            <c:when test="${confirmadosPage.totalPages <= 3}">
+                                <c:forEach var="i" begin="0" end="${confirmadosPage.totalPages - 1}">
+                                    <c:choose>
+                                        <c:when test="${i == confirmadosPage.number}">
+                                            <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${i + 1}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=${i}&size=${confirmadosPage.size}'/>"
+                                               class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${i + 1}</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <c:choose>
+                                    <c:when test="${confirmadosPage.number == 0}">
+                                        <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">1</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=0&size=${confirmadosPage.size}'/>"
+                                           class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">1</a>
+                                    </c:otherwise>
+                                </c:choose>
+                                <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                <c:if test="${confirmadosPage.number > 0 && confirmadosPage.number < confirmadosPage.totalPages - 1}">
+                                    <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${confirmadosPage.number + 1}</span>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                </c:if>
+                                <c:set var="lastIndex" value="${confirmadosPage.totalPages - 1}" />
+                                <c:choose>
+                                    <c:when test="${confirmadosPage.number == lastIndex}">
+                                        <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${confirmadosPage.totalPages}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=${lastIndex}&size=${confirmadosPage.size}'/>"
+                                           class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${confirmadosPage.totalPages}</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:choose>
+                            <c:when test="${confirmadosPage.number + 1 < confirmadosPage.totalPages}">
+                                <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}&page=${confirmadosPage.number + 1}&size=${confirmadosPage.size}'/>"
+                                   class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-r-md">Próxima</a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-r-md cursor-not-allowed">Próxima</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </nav>
+            </c:if>
         </div>
 
         <div class="mt-6">
@@ -190,6 +328,28 @@
                     }
                 });
                
+                    // Esconde botão Confirmar se o horário de início já passou (ou é agora)
+                    document.querySelectorAll('.btn-confirmar').forEach(function(btn){
+                        var raw = btn.getAttribute('data-inicio');
+                        if (!raw) return;
+                        var d = new Date(raw);
+                        if (isNaN(d.getTime())) { d = new Date(raw.replace(' ', 'T')); }
+                        if (!isNaN(d.getTime()) && d <= agora) {
+                            btn.style.display = 'none';
+                        }
+                    });
+
+                    // Esconde botão Finalizar até o horário de início chegar
+                    document.querySelectorAll('.btn-finalizar').forEach(function(btn){
+                        var raw = btn.getAttribute('data-inicio');
+                        if (!raw) return;
+                        var d = new Date(raw);
+                        if (isNaN(d.getTime())) { d = new Date(raw.replace(' ', 'T')); }
+                        if (!isNaN(d.getTime()) && d > agora) {
+                            btn.style.display = 'none';
+                        }
+                    });
+
                 document.querySelectorAll('[data-datetime]').forEach(function(span){
                     var raw = span.getAttribute('data-datetime');
                     var d = new Date(raw);

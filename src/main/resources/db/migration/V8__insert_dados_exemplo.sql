@@ -1,9 +1,9 @@
 
 -- Inserir setores de exemplo
 INSERT INTO tb_setores (nome, caixa, aberto) VALUES 
-('Setor A - Salas de Reunião', 0.00, false),
-('Setor B - Salas de Eventos', 0.00, false),
-('Setor C - Salas de Treinamento', 0.00, false)
+('Setor A - Salas de Reunião', 0.00, true),
+('Setor B - Salas de Eventos', 0.00, true),
+('Setor C - Salas de Treinamento', 0.00, true)
 ON CONFLICT DO NOTHING;
 
 -- Inserir salas de exemplo

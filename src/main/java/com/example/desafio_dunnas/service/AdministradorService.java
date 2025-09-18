@@ -24,7 +24,9 @@ public class AdministradorService {
             throw new IllegalArgumentException("senha é obrigatória");
         if (matricula == null || matricula.isBlank())
             throw new IllegalArgumentException("matricula é obrigatória");
-        if (cpf != null && cpf.length() != 11)
+        if (cpf == null || cpf.isBlank())
+            throw new IllegalArgumentException("cpf é obrigatório");
+        if (cpf.length() != 11)
             throw new IllegalArgumentException("cpf deve ter 11 dígitos");
 
         String senhaHash = passwordEncoder.encode(senhaPlano);

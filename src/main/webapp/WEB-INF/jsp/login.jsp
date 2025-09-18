@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="pt-br">
   <head>
@@ -7,7 +8,7 @@
   </head>
   <body class="bg-gray-50 text-gray-900">
     <div class="max-w-2xl mx-auto p-6">
-      <h1 class="text-3xl font-bold mb-4">Faça login</h1>
+      <h1 class="text-3xl font-bold mb-4 text-center"> login</h1>
 
       <div class="mb-4">
         <% if (request.getParameter("error") != null) { %>
@@ -47,6 +48,9 @@
           </a>
         </div>
       </form>
+      <div class="mt-12 flex justify-center">
+        <img src="<c:url value='/images/logo.png'/>" alt="Logo" class="h-56 opacity-80" />
+      </div>
     </div>
   </body>
 </html>

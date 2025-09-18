@@ -148,6 +148,74 @@
                         </tbody>
                     </table>
                 </div>
+                <c:if test="${agPage != null && agPage.totalPages > 1}">
+                    <div class="flex items-center justify-end mt-4">
+                        <nav class="inline-flex -space-x-px rounded-md shadow-sm" role="group" aria-label="Paginação agendamentos">
+                            <c:choose>
+                                <c:when test="${agPage.number > 0}">
+                                    <a class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-l-md"
+                                       href="?setorId=${setor.id}&agPage=${agPage.number - 1}&agSize=${agPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : agPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : agPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}">Anterior</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-l-md cursor-not-allowed">Anterior</span>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:choose>
+                                <c:when test="${agPage.totalPages <= 3}">
+                                    <c:forEach var="i" begin="0" end="${agPage.totalPages - 1}">
+                                        <c:choose>
+                                            <c:when test="${i == agPage.number}">
+                                                <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${i + 1}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="?setorId=${setor.id}&agPage=${i}&agSize=${agPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : agPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : agPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                                   class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${i + 1}</a>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <!-- Primeira página -->
+                                    <c:choose>
+                                        <c:when test="${agPage.number == 0}">
+                                            <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">1</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="?setorId=${setor.id}&agPage=0&agSize=${agPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : agPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : agPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                               class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">1</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                    <!-- Página atual no meio (se não for primeira nem última) -->
+                                    <c:if test="${agPage.number > 0 && agPage.number < agPage.totalPages - 1}">
+                                        <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${agPage.number + 1}</span>
+                                        <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                    </c:if>
+                                    <!-- Última página -->
+                                    <c:set var="lastIndex" value="${agPage.totalPages - 1}" />
+                                    <c:choose>
+                                        <c:when test="${agPage.number == lastIndex}">
+                                            <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${agPage.totalPages}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="?setorId=${setor.id}&agPage=${lastIndex}&agSize=${agPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : agPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : agPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                               class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${agPage.totalPages}</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:choose>
+                                <c:when test="${agPage.number + 1 < agPage.totalPages}">
+                                    <a class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-r-md"
+                                       href="?setorId=${setor.id}&agPage=${agPage.number + 1}&agSize=${agPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : agPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : agPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}">Próxima</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-r-md cursor-not-allowed">Próxima</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </nav>
+                    </div>
+                </c:if>
             </div>
         </c:if>
 
@@ -196,6 +264,74 @@
                         </tbody>
                     </table>
                 </div>
+                <c:if test="${histPage != null && histPage.totalPages > 1}">
+                    <div class="flex items-center justify-end mt-4">
+                        <nav class="inline-flex -space-x-px rounded-md shadow-sm" role="group" aria-label="Paginação histórico">
+                            <c:choose>
+                                <c:when test="${histPage.number > 0}">
+                                    <a class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-l-md"
+                                       href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : histPage.size}&histPage=${histPage.number - 1}&histSize=${histPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : histPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}">Anterior</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-l-md cursor-not-allowed">Anterior</span>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:choose>
+                                <c:when test="${histPage.totalPages <= 3}">
+                                    <c:forEach var="i" begin="0" end="${histPage.totalPages - 1}">
+                                        <c:choose>
+                                            <c:when test="${i == histPage.number}">
+                                                <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${i + 1}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : histPage.size}&histPage=${i}&histSize=${histPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : histPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                                   class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${i + 1}</a>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <!-- Primeira página -->
+                                    <c:choose>
+                                        <c:when test="${histPage.number == 0}">
+                                            <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">1</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : histPage.size}&histPage=0&histSize=${histPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : histPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                               class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">1</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                    <!-- Página atual no meio (se não for primeira nem última) -->
+                                    <c:if test="${histPage.number > 0 && histPage.number < histPage.totalPages - 1}">
+                                        <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${histPage.number + 1}</span>
+                                        <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                    </c:if>
+                                    <!-- Última página -->
+                                    <c:set var="lastIndex" value="${histPage.totalPages - 1}" />
+                                    <c:choose>
+                                        <c:when test="${histPage.number == lastIndex}">
+                                            <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${histPage.totalPages}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : histPage.size}&histPage=${lastIndex}&histSize=${histPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : histPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                               class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${histPage.totalPages}</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:choose>
+                                <c:when test="${histPage.number + 1 < histPage.totalPages}">
+                                    <a class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-r-md"
+                                       href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : histPage.size}&histPage=${histPage.number + 1}&histSize=${histPage.size}&txPage=${txPage != null ? txPage.number : 0}&txSize=${txPage != null ? txPage.size : histPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}">Próxima</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-r-md cursor-not-allowed">Próxima</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </nav>
+                    </div>
+                </c:if>
             </div>
         </c:if>
 
@@ -228,9 +364,72 @@
                         </tbody>
                     </table>
                 </div>
-                <c:if test="${not empty valorTotal}">
-                    <div class="mt-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">
-                        Total no período: <strong>R$ ${valorTotal}</strong>
+                <c:if test="${txPage != null && txPage.totalPages > 1}">
+                    <div class="flex items-center justify-end mt-4">
+                        <nav class="inline-flex -space-x-px rounded-md shadow-sm" role="group" aria-label="Paginação transações">
+                            <c:choose>
+                                <c:when test="${txPage.number > 0}">
+                                    <a class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-l-md"
+                                       href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : txPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : txPage.size}&txPage=${txPage.number - 1}&txSize=${txPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}">Anterior</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-l-md cursor-not-allowed">Anterior</span>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:choose>
+                                <c:when test="${txPage.totalPages <= 3}">
+                                    <c:forEach var="i" begin="0" end="${txPage.totalPages - 1}">
+                                        <c:choose>
+                                            <c:when test="${i == txPage.number}">
+                                                <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${i + 1}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : txPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : txPage.size}&txPage=${i}&txSize=${txPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                                   class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${i + 1}</a>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <!-- Primeira página -->
+                                    <c:choose>
+                                        <c:when test="${txPage.number == 0}">
+                                            <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">1</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : txPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : txPage.size}&txPage=0&txSize=${txPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                               class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">1</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                    <!-- Página atual no meio (se não for primeira nem última) -->
+                                    <c:if test="${txPage.number > 0 && txPage.number < txPage.totalPages - 1}">
+                                        <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${txPage.number + 1}</span>
+                                        <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                                    </c:if>
+                                    <!-- Última página -->
+                                    <c:set var="lastIndex" value="${txPage.totalPages - 1}" />
+                                    <c:choose>
+                                        <c:when test="${txPage.number == lastIndex}">
+                                            <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${txPage.totalPages}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : txPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : txPage.size}&txPage=${lastIndex}&txSize=${txPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}"
+                                               class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${txPage.totalPages}</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:choose>
+                                <c:when test="${txPage.number + 1 < txPage.totalPages}">
+                                    <a class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-r-md"
+                                       href="?setorId=${setor.id}&agPage=${agPage != null ? agPage.number : 0}&agSize=${agPage != null ? agPage.size : txPage.size}&histPage=${histPage != null ? histPage.number : 0}&histSize=${histPage != null ? histPage.size : txPage.size}&txPage=${txPage.number + 1}&txSize=${txPage.size}&dataInicio=${dataInicio}&dataFim=${dataFim}&status=${status}&clienteId=${clienteId}">Próxima</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-r-md cursor-not-allowed">Próxima</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </nav>
                     </div>
                 </c:if>
             </div>

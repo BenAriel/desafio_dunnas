@@ -2,6 +2,8 @@ package com.example.desafio_dunnas.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,16 +21,16 @@ public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
 
-    public List<Agendamento> findByClienteId(Long clienteId) {
-        return agendamentoRepository.findByClienteIdOrderByDataCriacaoDesc(clienteId);
+    public Page<Agendamento> findByClienteId(Long clienteId, Pageable pageable) {
+        return agendamentoRepository.findByClienteIdOrderByDataCriacaoDesc(clienteId, pageable);
     }
 
-    public List<Agendamento> findBySetorId(Long setorId) {
-        return agendamentoRepository.findBySalaSetorIdOrderByDataCriacaoDesc(setorId);
+    public Page<Agendamento> findBySetorId(Long setorId, Pageable pageable) {
+        return agendamentoRepository.findBySalaSetorIdOrderByDataCriacaoDesc(setorId, pageable);
     }
 
-    public List<Agendamento> findBySetorIdAndStatus(Long setorId, StatusAgendamento status) {
-        return agendamentoRepository.findBySetorIdAndStatus(setorId, status);
+    public Page<Agendamento> findBySetorIdAndStatus(Long setorId, StatusAgendamento status, Pageable pageable) {
+        return agendamentoRepository.findBySetorIdAndStatus(setorId, status, pageable);
     }
 
     public void criarAgendamento(Long salaId, Long clienteId, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim,

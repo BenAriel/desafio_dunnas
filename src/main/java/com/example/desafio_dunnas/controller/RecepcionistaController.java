@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.validation.Valid;
 
 import com.example.desafio_dunnas.config.DbErrorMessageResolver;
+import com.example.desafio_dunnas.dto.relatorio.RelatorioFiltroDTO;
+import com.example.desafio_dunnas.dto.relatorio.RelatorioRecepResultDTO;
 import com.example.desafio_dunnas.form.agendamento.AgendamentoInstantaneoForm;
 import com.example.desafio_dunnas.model.Agendamento;
 import com.example.desafio_dunnas.model.Cliente;
@@ -27,9 +30,9 @@ import com.example.desafio_dunnas.model.Agendamento.StatusAgendamento;
 import com.example.desafio_dunnas.service.AgendamentoService;
 import com.example.desafio_dunnas.service.ClienteService;
 import com.example.desafio_dunnas.service.RecepcionistaService;
-import com.example.desafio_dunnas.service.RelatorioService;
 import com.example.desafio_dunnas.service.SalaService;
 import com.example.desafio_dunnas.service.SetorService;
+import com.example.desafio_dunnas.service.RelatorioService;
 
 import java.util.Optional;
 
@@ -66,7 +69,10 @@ public class RecepcionistaController {
     }
 
     @GetMapping("/agendamentos")
-    public String listarAgendamentos(@RequestParam(required = false) Long setorId, Model model,
+    public String listarAgendamentos(@RequestParam(required = false) Long setorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model,
             RedirectAttributes redirectAttributes) {
         try {
             if (setorId == null) {
@@ -82,13 +88,16 @@ public class RecepcionistaController {
             Setor setor = setorService.findById(setorId)
                     .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado"));
 
-            List<Agendamento> solicitados = agendamentoService.findBySetorIdAndStatus(setorId,
-                    StatusAgendamento.SOLICITADO);
-            List<Agendamento> confirmados = agendamentoService.findBySetorIdAndStatus(setorId,
-                    StatusAgendamento.CONFIRMADO);
+            var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+            var solicitados = agendamentoService.findBySetorIdAndStatus(setorId,
+                    StatusAgendamento.SOLICITADO, pageable);
+            var confirmados = agendamentoService.findBySetorIdAndStatus(setorId,
+                    StatusAgendamento.CONFIRMADO, pageable);
 
-            model.addAttribute("solicitados", solicitados);
-            model.addAttribute("confirmados", confirmados);
+            model.addAttribute("solicitados", solicitados.getContent());
+            model.addAttribute("solicitadosPage", solicitados);
+            model.addAttribute("confirmados", confirmados.getContent());
+            model.addAttribute("confirmadosPage", confirmados);
             model.addAttribute("setorId", setorId);
             model.addAttribute("setor", setor);
 
@@ -139,7 +148,9 @@ public class RecepcionistaController {
     }
 
     @GetMapping("/agendamentos/instantaneo")
-    public String agendamentoInstantaneoForm(@RequestParam(required = false) Long setorId, Model model,
+    public String agendamentoInstantaneoForm(@RequestParam(required = false) Long setorId,
+            @RequestParam(required = false) Long salaId,
+            Model model,
             RedirectAttributes redirectAttributes) {
         try {
             if (setorId == null) {
@@ -158,9 +169,21 @@ public class RecepcionistaController {
             model.addAttribute("salas", salas);
             model.addAttribute("clientes", clientes);
             model.addAttribute("setorId", setorId);
+            DateTimeFormatter formatter = DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd'T'HH:mm");
+            model.addAttribute("minDateTime", LocalDateTime.now().plusMinutes(1).format(formatter));
+            if (salaId != null) {
+                Sala salaSel = salaService.findById(salaId)
+                        .orElseThrow(() -> new IllegalArgumentException("Sala não encontrada"));
+                model.addAttribute("sala", salaSel);
+                var confirmados = agendamentoService.findConfirmadosPorSalaComFimNoFuturo(salaId);
+                model.addAttribute("confirmados", confirmados);
+            }
             if (!model.containsAttribute("form")) {
                 AgendamentoInstantaneoForm form = new AgendamentoInstantaneoForm();
                 form.setSetorId(setorId);
+                if (salaId != null)
+                    form.setSalaId(salaId);
                 model.addAttribute("form", form);
             }
 
@@ -183,21 +206,30 @@ public class RecepcionistaController {
         model.addAttribute("salas", salas);
         model.addAttribute("clientes", clientes);
         model.addAttribute("setorId", setorId);
+        DateTimeFormatter formatter = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd'T'HH:mm");
+        model.addAttribute("minDateTime", LocalDateTime.now().plusMinutes(1).format(formatter));
+        if (form.getSalaId() != null) {
+            salaService.findById(form.getSalaId()).ifPresent(s -> model.addAttribute("sala", s));
+            var confirmados = agendamentoService.findConfirmadosPorSalaComFimNoFuturo(form.getSalaId());
+            model.addAttribute("confirmados", confirmados);
+        }
 
         if (bindingResult.hasErrors()) {
             return "recepcionista/agendamento-instantaneo";
         }
 
         try {
-            DateTimeFormatter formatter = DateTimeFormatter
+            DateTimeFormatter formatterPost = DateTimeFormatter
                     .ofPattern("yyyy-MM-dd'T'HH:mm");
-            LocalDateTime dataHoraInicio = LocalDateTime.parse(form.getDataHoraInicio(), formatter);
-            LocalDateTime dataHoraFim = LocalDateTime.parse(form.getDataHoraFim(), formatter);
+            LocalDateTime dataHoraInicio = LocalDateTime.parse(form.getDataHoraInicio(), formatterPost);
+            LocalDateTime dataHoraFim = LocalDateTime.parse(form.getDataHoraFim(), formatterPost);
 
             agendamentoService.criarAgendamento(form.getSalaId(), form.getClienteId(), dataHoraInicio, dataHoraFim,
                     form.getObservacoes());
 
-            List<Agendamento> agendamentos = agendamentoService.findBySetorId(setorId);
+            var agendamentos = agendamentoService.findBySetorId(setorId,
+                    PageRequest.of(0, 50));
             Agendamento ultimoAgendamento = agendamentos.stream()
                     .filter(a -> a.getSala().getId().equals(form.getSalaId()) &&
                             a.getCliente().getId().equals(form.getClienteId()) &&
@@ -248,6 +280,12 @@ public class RecepcionistaController {
             @RequestParam(required = false) String dataFim,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long clienteId,
+            @RequestParam(defaultValue = "0") int agPage,
+            @RequestParam(defaultValue = "5") int agSize,
+            @RequestParam(defaultValue = "0") int histPage,
+            @RequestParam(defaultValue = "5") int histSize,
+            @RequestParam(defaultValue = "0") int txPage,
+            @RequestParam(defaultValue = "5") int txSize,
             Model model,
             RedirectAttributes redirectAttributes) {
         try {
@@ -264,13 +302,6 @@ public class RecepcionistaController {
                     .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado"));
             model.addAttribute("setor", setor);
 
-            var solicitados = agendamentoService.findBySetorIdAndStatus(setorId, StatusAgendamento.SOLICITADO);
-            var confirmados = agendamentoService.findBySetorIdAndStatus(setorId, StatusAgendamento.CONFIRMADO);
-            var finalizados = agendamentoService.findBySetorIdAndStatus(setorId, StatusAgendamento.FINALIZADO);
-            model.addAttribute("solicitados", solicitados);
-            model.addAttribute("confirmados", confirmados);
-            model.addAttribute("finalizados", finalizados);
-
             model.addAttribute("dataInicio", dataInicio);
             model.addAttribute("dataFim", dataFim);
             model.addAttribute("status", status);
@@ -285,40 +316,33 @@ public class RecepcionistaController {
             LocalDate fimD = (dataFim != null && !dataFim.isBlank())
                     ? LocalDate.parse(dataFim)
                     : LocalDate.now();
-            var inicio = ini.atStartOfDay();
-            var fim = fimD.atTime(23, 59, 59);
             model.addAttribute("dataInicio", ini.toString());
             model.addAttribute("dataFim", fimD.toString());
 
-            var agendamentosPeriodo = relatorioService.agendamentosPorPeriodoSetor(setorId, inicio, fim);
-            // aplicar filtros por status e cliente
-            if (status != null && !status.isBlank() && !"TODOS".equalsIgnoreCase(status)) {
-                try {
-                    StatusAgendamento st = StatusAgendamento.valueOf(status.toUpperCase());
-                    agendamentosPeriodo = agendamentosPeriodo.stream()
-                            .filter(a -> a.getStatus() == st)
-                            .toList();
-                } catch (IllegalArgumentException ignore) {
-                }
-            }
-            if (clienteId != null) {
-                Long cid = clienteId;
-                agendamentosPeriodo = agendamentosPeriodo.stream()
-                        .filter(a -> a.getCliente() != null && a.getCliente().getId().equals(cid))
-                        .toList();
-            }
-            model.addAttribute("agendamentos", agendamentosPeriodo);
+            RelatorioRecepResultDTO result = relatorioService
+                    .gerarRelatorioRecep(
+                            RelatorioFiltroDTO.builder()
+                                    .setorId(setorId)
+                                    .dataInicio(dataInicio)
+                                    .dataFim(dataFim)
+                                    .status(status)
+                                    .clienteId(clienteId)
+                                    .agPage(agPage)
+                                    .agSize(agSize)
+                                    .histPage(histPage)
+                                    .histSize(histSize)
+                                    .txPage(txPage)
+                                    .txSize(txSize)
+                                    .build());
 
-            var historicosSetor = relatorioService.historicoPorSetor(setorId);
-            var historicosFiltrados = historicosSetor.stream()
-                    .filter(h -> !h.getDataMudanca().isBefore(inicio) && !h.getDataMudanca().isAfter(fim))
-                    .toList();
-            model.addAttribute("historicos", historicosFiltrados);
-
-            var transacoes = relatorioService.transacoesConfirmadasPorPeriodoSetor(setorId, inicio, fim);
-            var valorTotal = relatorioService.valorTransacoesConfirmadasPorPeriodoSetor(setorId, inicio, fim);
-            model.addAttribute("transacoes", transacoes);
-            model.addAttribute("valorTotal", valorTotal);
+            model.addAttribute("dataInicio", result.getDataInicioStr());
+            model.addAttribute("dataFim", result.getDataFimStr());
+            model.addAttribute("agendamentos", result.getAgendamentos());
+            model.addAttribute("agPage", result.getAgPage());
+            model.addAttribute("historicos", result.getHistoricos());
+            model.addAttribute("histPage", result.getHistPage());
+            model.addAttribute("transacoes", result.getTransacoes());
+            model.addAttribute("txPage", result.getTxPage());
             return "recepcionista/relatorios";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", DbErrorMessageResolver.resolve(e));

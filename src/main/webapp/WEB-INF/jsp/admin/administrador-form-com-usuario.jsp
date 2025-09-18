@@ -44,8 +44,8 @@
       </div>
 
       <div class="mb-6">
-        <label class="block text-sm font-medium mb-1" for="cpf">CPF (opcional)</label>
-        <form:input path="cpf" id="cpf" cssClass="border rounded w-full p-2" maxlength="11" />
+        <label class="block text-sm font-medium mb-1" for="cpf">CPF</label>
+        <form:input path="cpf" id="cpf" cssClass="border rounded w-full p-2" inputmode="numeric" maxlength="14" />
         <form:errors path="cpf" cssClass="text-red-600 text-sm" />
       </div>
 
@@ -55,5 +55,22 @@
       </div>
   </form:form>
   </div>
+  <script>
+    (function(){
+      var Utils = window.Utils || {};
+      var el = document.getElementById('cpf');
+      if (el && Utils.cpfMask) {
+        el.addEventListener('input', function(){
+          var raw = Utils.cpfMask.unmask(el.value);
+          el.value = Utils.cpfMask.mask(raw);
+        });
+        if (el.form) {
+          el.form.addEventListener('submit', function(){
+            el.value = Utils.cpfMask.unmask(el.value);
+          });
+        }
+      }
+    })();
+  </script>
 </body>
 </html>

@@ -13,14 +13,18 @@ public final class DbErrorMessageResolver {
 
     private static final Pattern GENERIC_RAISE_MSG = Pattern.compile("^(.+)$");
 
-    private static final Map<String, String> CONSTRAINT_MESSAGES = Map.of(
-            "ux_recepcionista_setor", "Este setor já possui um recepcionista alocado.",
-            "tb_usuarios_email_key", "Este e-mail já está cadastrado.",
-            "tb_administradores_matricula_key", "Esta matrícula já está cadastrada.",
-            "tb_recepcionistas_matricula_key", "Esta matrícula já está cadastrada.",
-            "tb_recepcionistas_cpf_key", "Este CPF já está cadastrado.",
-            "tb_clientes_telefone_key", "Este telefone já está cadastrado.",
-            "ux_sala_nome_setor", "Já existe uma sala com este nome neste setor.");
+    private static final Map<String, String> CONSTRAINT_MESSAGES = Map.ofEntries(
+            Map.entry("ux_recepcionista_setor", "Este setor já possui um recepcionista alocado."),
+            Map.entry("tb_usuarios_email_key", "Este e-mail já está cadastrado."),
+            Map.entry("tb_administradores_matricula_key", "Esta matrícula já está cadastrada."),
+            Map.entry("tb_administradores_cpf_key", "Este CPF já está cadastrado."),
+            Map.entry("tb_recepcionistas_matricula_key", "Esta matrícula já está cadastrada."),
+            Map.entry("tb_recepcionistas_cpf_key", "Este CPF já está cadastrado."),
+            Map.entry("tb_clientes_telefone_key", "Este telefone já está cadastrado."),
+            Map.entry("chk_administradores_cpf_11dig", "CPF deve ter 11 dígitos numéricos."),
+            Map.entry("chk_recepcionistas_cpf_11dig", "CPF deve ter 11 dígitos numéricos."),
+            Map.entry("chk_clientes_tel_11dig", "Telefone deve ter 11 dígitos numéricos."),
+            Map.entry("ux_sala_nome_setor", "Já existe uma sala com este nome neste setor."));
 
     private DbErrorMessageResolver() {
     }

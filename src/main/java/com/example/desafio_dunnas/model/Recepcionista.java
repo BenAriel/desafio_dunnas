@@ -32,6 +32,6 @@ public class Recepcionista {
     @Column(nullable = false, unique = true, length = 20)
     private String matricula;
 
-    @Column(unique = true, length = 11)
+    @Column(nullable = false, unique = true, length = 11)
     private String cpf;
 }

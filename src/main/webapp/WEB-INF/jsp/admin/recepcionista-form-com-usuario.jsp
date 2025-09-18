@@ -5,12 +5,13 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Novo Usuário + Recepcionista</title>
+  <title>Novo Recepcionista</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
+ <%@ include file="/WEB-INF/jsp/components/header.jsp" %>
   <div class="max-w-2xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">Cadastrar Usuário + Recepcionista</h1>
+    <h1 class="text-2xl font-bold mb-4 text-center">Cadastrar Recepcionista</h1>
     <c:if test="${not empty error}">
       <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" data-auto-dismiss="3000">
         ${error}
@@ -63,9 +64,9 @@
       </div>
 
       <div class="mb-6">
-        <label class="block text-sm font-medium mb-1" for="cpf">CPF (opcional)</label>
-  <form:input path="cpf" id="cpf" cssClass="border rounded w-full p-2" maxlength="11" />
-  <form:errors path="cpf" cssClass="text-red-600 text-sm" />
+        <label class="block text-sm font-medium mb-1" for="cpf">CPF</label>
+        <form:input path="cpf" id="cpf" cssClass="border rounded w-full p-2" inputmode="numeric" maxlength="14" />
+        <form:errors path="cpf" cssClass="text-red-600 text-sm" />
       </div>
 
       <div class="flex gap-2">
@@ -74,5 +75,22 @@
       </div>
   </form:form>
   </div>
+  <script>
+    (function(){
+      var Utils = window.Utils || {};
+      var el = document.getElementById('cpf');
+      if (el && Utils.cpfMask) {
+        el.addEventListener('input', function(){
+          var raw = Utils.cpfMask.unmask(el.value);
+          el.value = Utils.cpfMask.mask(raw);
+        });
+        if (el.form) {
+          el.form.addEventListener('submit', function(){
+            el.value = Utils.cpfMask.unmask(el.value);
+          });
+        }
+      }
+    })();
+  </script>
 </body>
 </html>

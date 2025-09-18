@@ -19,7 +19,9 @@ BEGIN
   IF EXISTS(SELECT 1 FROM tb_usuarios WHERE email = p_email) THEN
     RAISE EXCEPTION 'Email já cadastrado (%)', p_email;
   END IF;
-  IF EXISTS(SELECT 1 FROM tb_administradores WHERE cpf = p_cpf AND p_cpf IS NOT NULL) THEN
+  IF p_cpf IS NULL OR trim(p_cpf) = '' THEN RAISE EXCEPTION 'CPF é obrigatório'; END IF;
+  IF length(p_cpf) <> 11 OR p_cpf !~ '^[0-9]{11}$' THEN RAISE EXCEPTION 'CPF deve ter 11 dígitos numéricos'; END IF;
+  IF EXISTS(SELECT 1 FROM tb_administradores WHERE cpf = p_cpf) THEN
     RAISE EXCEPTION 'CPF já cadastrado (%)', p_cpf;
   END IF;
   IF EXISTS(SELECT 1 FROM tb_administradores WHERE matricula = p_matricula) THEN
@@ -62,7 +64,9 @@ BEGIN
   IF EXISTS(SELECT 1 FROM tb_usuarios WHERE email = p_email) THEN
     RAISE EXCEPTION 'Email já cadastrado (%)', p_email;
   END IF;
-  IF EXISTS(SELECT 1 FROM tb_recepcionistas WHERE cpf = p_cpf AND p_cpf IS NOT NULL) THEN
+  IF p_cpf IS NULL OR trim(p_cpf) = '' THEN RAISE EXCEPTION 'CPF é obrigatório'; END IF;
+  IF length(p_cpf) <> 11 OR p_cpf !~ '^[0-9]{11}$' THEN RAISE EXCEPTION 'CPF deve ter 11 dígitos numéricos'; END IF;
+  IF EXISTS(SELECT 1 FROM tb_recepcionistas WHERE cpf = p_cpf) THEN
     RAISE EXCEPTION 'CPF já cadastrado (%)', p_cpf;
   END IF;
   IF EXISTS(SELECT 1 FROM tb_recepcionistas WHERE matricula = p_matricula) THEN
@@ -106,7 +110,9 @@ BEGIN
   IF EXISTS(SELECT 1 FROM tb_usuarios WHERE email = p_email) THEN
     RAISE EXCEPTION 'Email já cadastrado (%)', p_email;
   END IF;
-  IF p_telefone IS NOT NULL AND EXISTS(SELECT 1 FROM tb_clientes WHERE telefone = p_telefone) THEN
+  IF p_telefone IS NULL OR trim(p_telefone) = '' THEN RAISE EXCEPTION 'Telefone é obrigatório'; END IF;
+  IF length(p_telefone) <> 11 OR p_telefone !~ '^[0-9]{11}$' THEN RAISE EXCEPTION 'Telefone deve ter 11 dígitos numéricos'; END IF;
+  IF EXISTS(SELECT 1 FROM tb_clientes WHERE telefone = p_telefone) THEN
     RAISE EXCEPTION 'Telefone já cadastrado (%)', p_telefone;
   END IF;
 

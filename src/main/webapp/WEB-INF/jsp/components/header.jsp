@@ -39,6 +39,7 @@
 		</div>
 	</div>
 </header>
+<%@ include file="/WEB-INF/jsp/components/confirm-modal.jsp" %>
 <script src="<c:url value='/js/utils.js'/>"></script>
 
 

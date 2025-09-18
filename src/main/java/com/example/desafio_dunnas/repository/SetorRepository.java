@@ -1,6 +1,8 @@
 package com.example.desafio_dunnas.repository;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,15 +20,18 @@ public interface SetorRepository extends JpaRepository<Setor, Long> {
         @Query("SELECT s FROM Setor s WHERE s.aberto = true AND s.deletedAt IS NULL ORDER BY s.nome")
         List<Setor> findByAbertoTrue();
 
+        @Query("SELECT s FROM Setor s WHERE s.aberto = true AND s.deletedAt IS NULL ORDER BY s.nome")
+        Page<Setor> findByAbertoTrue(Pageable pageable);
+
         @Query("SELECT s FROM Setor s WHERE s.id NOT IN (SELECT r.setor.id FROM Recepcionista r WHERE r.setor IS NOT NULL) AND s.deletedAt IS NULL ORDER BY s.nome")
         List<Setor> findSetoresSemRecepcionista();
 
         // Consultas que incluem setores soft deleted (para administração)
         @Query("SELECT s FROM Setor s WHERE s.deletedAt IS NULL ORDER BY s.nome")
-        List<Setor> findAllNaoExcluidos();
+        Page<Setor> findAllNaoExcluidos(Pageable pageable);
 
         @Query("SELECT s FROM Setor s WHERE s.deletedAt IS NOT NULL ORDER BY s.deletedAt DESC")
-        List<Setor> findAllExcluidos();
+        Page<Setor> findAllExcluidos(Pageable pageable);
 
         @Transactional
         @Modifying
@@ -63,4 +68,5 @@ public interface SetorRepository extends JpaRepository<Setor, Long> {
         @Modifying
         @Query(value = "CALL pr_reativar_setor(:p_setor_id, :p_reativado_by)", nativeQuery = true)
         void reativarSetor(@Param("p_setor_id") Long setorId, @Param("p_reativado_by") Long reativadoBy);
+
 }

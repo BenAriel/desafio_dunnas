@@ -7,6 +7,7 @@
   <meta charset="UTF-8" />
   <title>Novo Cliente</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="<c:url value='/js/utils.js'/>"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
   <div class="max-w-2xl mx-auto p-6">
@@ -34,7 +35,7 @@
 
       <div class="mb-4">
         <label class="block text-sm font-medium mb-1" for="telefone">Telefone</label>
-  <form:input class="border rounded w-full p-2" type="text" id="telefone" path="telefone" inputmode="numeric" autocomplete="tel" maxlength="15" />
+        <form:input class="border rounded w-full p-2" type="text" id="telefone" path="telefone" inputmode="numeric" autocomplete="tel" maxlength="15" />
       </div>
 
       <div class="mb-6">
@@ -48,5 +49,22 @@
       </div>
   </form:form>
   </div>
+  <script>
+    (function(){
+      var Utils = window.Utils || {};
+      var tel = document.getElementById('telefone');
+      if (tel && Utils.telefoneMask) {
+        tel.addEventListener('input', function(){
+          var raw = Utils.telefoneMask.unmask(tel.value);
+          tel.value = Utils.telefoneMask.mask(raw);
+        });
+        if (tel.form) {
+          tel.form.addEventListener('submit', function(){
+            tel.value = Utils.telefoneMask.unmask(tel.value);
+          });
+        }
+      }
+    })();
+  </script>
 </body>
 </html>

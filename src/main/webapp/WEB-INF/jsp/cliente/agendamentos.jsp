@@ -89,7 +89,7 @@
                                             <input type="hidden" name="agendamentoId" value="${agendamento.id}" />
                                             <button type="submit" 
                                                     class="text-red-600 hover:text-red-900"
-                                                    onclick="return confirm('Tem certeza que deseja cancelar este agendamento?')">
+                                                    data-confirm="Tem certeza que deseja cancelar este agendamento?">
                                                 Cancelar
                                             </button>
                                         </form>
@@ -100,7 +100,7 @@
                                             <input type="hidden" name="agendamentoId" value="${agendamento.id}" />
                                             <button type="submit" 
                                                     class="text-red-600 hover:text-red-900"
-                                                    onclick="return confirm('Deseja cancelar este agendamento confirmado? O valor de sinal será estornado do caixa.')">
+                                                    data-confirm="Deseja cancelar este agendamento confirmado? O valor de sinal será estornado do caixa.">
                                                 Cancelar
                                             </button>
                                         </form>
@@ -119,6 +119,81 @@
                 </tbody>
             </table>
         </div>
+
+        <c:if test="${page != null && page.totalPages > 1}">
+            <nav class="mt-6 flex items-center justify-between" aria-label="Paginação">
+                <div class="text-sm text-gray-600">
+                    Página <span class="font-semibold">${page.number + 1}</span> de <span class="font-semibold">${page.totalPages}</span>
+                </div>
+                <div class="inline-flex -space-x-px rounded-md shadow-sm" role="group">
+                    <c:choose>
+                        <c:when test="${page.number > 0}">
+                            <a href="<c:url value='/cliente/agendamentos?page=${page.number - 1}&size=${page.size}'/>"
+                               class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-l-md">
+                                Anterior
+                            </a>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-l-md cursor-not-allowed">Anterior</span>
+                        </c:otherwise>
+                    </c:choose>
+
+                    <c:choose>
+                        <c:when test="${page.totalPages <= 3}">
+                            <c:forEach var="i" begin="0" end="${page.totalPages - 1}">
+                                <c:choose>
+                                    <c:when test="${i == page.number}">
+                                        <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${i + 1}</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="<c:url value='/cliente/agendamentos?page=${i}&size=${page.size}'/>"
+                                           class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${i + 1}</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <c:choose>
+                                <c:when test="${page.number == 0}">
+                                    <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">1</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="<c:url value='/cliente/agendamentos?page=0&size=${page.size}'/>"
+                                       class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">1</a>
+                                </c:otherwise>
+                            </c:choose>
+                            <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                            <c:if test="${page.number > 0 && page.number < page.totalPages - 1}">
+                                <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${page.number + 1}</span>
+                                <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
+                            </c:if>
+                            <c:set var="lastIndex" value="${page.totalPages - 1}" />
+                            <c:choose>
+                                <c:when test="${page.number == lastIndex}">
+                                    <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${page.totalPages}</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="<c:url value='/cliente/agendamentos?page=${lastIndex}&size=${page.size}'/>"
+                                       class="px-3 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">${page.totalPages}</a>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:otherwise>
+                    </c:choose>
+
+                    <c:choose>
+                        <c:when test="${page.number + 1 < page.totalPages}">
+                            <a href="<c:url value='/cliente/agendamentos?page=${page.number + 1}&size=${page.size}'/>"
+                               class="px-3 py-2 text-sm font-medium border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-r-md">
+                                Próxima
+                            </a>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="px-3 py-2 text-sm font-medium border border-gray-200 text-gray-400 bg-gray-100 rounded-r-md cursor-not-allowed">Próxima</span>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </nav>
+        </c:if>
 
         <c:if test="${empty agendamentos}">
             <div class="text-center py-12">

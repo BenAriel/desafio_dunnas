@@ -66,7 +66,7 @@
                     </label>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-3 justify-between">
                     <button type="submit" 
                             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
                         ${form.id != null ? 'Atualizar' : 'Criar'}

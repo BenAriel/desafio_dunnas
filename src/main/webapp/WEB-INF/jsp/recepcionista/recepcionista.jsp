@@ -10,7 +10,7 @@
     <%@ include file="/WEB-INF/jsp/components/header.jsp" %>
     
     <main class="max-w-6xl mx-auto p-6">
-        <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center">Bem-vindo ao Sistema de Reservas</h1>
+        <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center">Bem-vindo ao painel de Recepcionista</h1>
         <c:if test="${not empty success}">
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 text-center" data-auto-dismiss="3000">
                 ${success}
@@ -23,39 +23,7 @@
         </c:if>
 
         <c:if test="${not empty setor}">
-            <div class="bg-white shadow rounded-lg p-6 mb-8">
-                <h2 class="text-xl font-semibold mb-4">Informações do Setor</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <h3 class="text-sm font-medium text-blue-600">Nome do Setor</h3>
-                        <p class="text-2xl font-bold text-blue-900">${setor.nome}</p>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <h3 class="text-sm font-medium text-green-600">Valor em Caixa</h3>
-                        <p class="text-2xl font-bold text-green-900">R$ <span id="valor-caixa-home">${setor.caixa}</span></p>
-                    </div>
-                    <div class="bg-purple-50 p-4 rounded-lg">
-                        <h3 class="text-sm font-medium text-purple-600">Status</h3>
-                        <p class="text-2xl font-bold text-purple-900"><span id="status-setor">${setor.aberto ? 'Aberto' : 'Fechado'}</span></p>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <c:choose>
-                        <c:when test="${setor.aberto}">
-                            <a href="<c:url value='/recepcionista/setor/fechar?setorId=${setor.id}'/>" 
-                               class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
-                                Fechar Setor
-                            </a>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="<c:url value='/recepcionista/setor/abrir?setorId=${setor.id}'/>" 
-                               class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                                Abrir Setor
-                            </a>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
+            <p class="text-center text-gray-600 mb-6">Setor atual: <span class="font-semibold">${setor.nome}</span> (ID: ${setor.id})</p>
         </c:if>
 
         <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

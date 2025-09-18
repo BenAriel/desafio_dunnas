@@ -10,7 +10,7 @@
     <%@ include file="/WEB-INF/jsp/components/header.jsp" %>
     
     <main class="max-w-6xl mx-auto p-6">
-        <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center">Bem-vindo ao Sistema de Reservas</h1>
+        <h1 class="text-3xl md:text-4xl font-extrabold mb-8 text-center">Bem-vindo ao nosso Sistema de Reservas</h1>
         <c:if test="${not empty success}">
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 text-center" data-auto-dismiss="3000">
                 ${success}

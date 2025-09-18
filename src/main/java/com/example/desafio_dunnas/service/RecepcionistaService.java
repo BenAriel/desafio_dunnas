@@ -3,6 +3,8 @@ package com.example.desafio_dunnas.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,10 @@ public class RecepcionistaService {
         return recepcionistaRepository.findAll();
     }
 
+    public Page<Recepcionista> findAll(Pageable pageable) {
+        return recepcionistaRepository.findAll(pageable);
+    }
+
     public void cadastrarUsuarioERecepcionista(
             String nome, String email, String senhaPlano, Long setorId, String matricula, String cpf) {
         if (nome == null || nome.isBlank())
@@ -35,7 +41,9 @@ public class RecepcionistaService {
             throw new IllegalArgumentException("setorId é obrigatório");
         if (matricula == null || matricula.isBlank())
             throw new IllegalArgumentException("matricula é obrigatória");
-        if (cpf != null && cpf.length() != 11)
+        if (cpf == null || cpf.isBlank())
+            throw new IllegalArgumentException("cpf é obrigatório");
+        if (cpf.length() != 11)
             throw new IllegalArgumentException("cpf deve ter 11 dígitos");
 
         String senhaHash = passwordEncoder.encode(senhaPlano);
@@ -63,7 +71,7 @@ public class RecepcionistaService {
     }
 
     public void excluirRecepcionista(Long recepcionistaId) {
-        Recepcionista r = findById(recepcionistaId);
-        recepcionistaRepository.delete(r);
+
+        recepcionistaRepository.excluirRecepcionistaComFechamento(recepcionistaId);
     }
 }

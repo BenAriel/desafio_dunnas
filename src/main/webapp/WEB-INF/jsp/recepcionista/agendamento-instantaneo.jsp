@@ -25,6 +25,62 @@
         </c:if>
 
 
+        <c:if test="${not empty sala}">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 class="text-sm font-medium text-blue-800 mb-2">Resumo de Preço</h3>
+            <p class="text-sm text-blue-700">
+                • Valor por hora: <strong>R$ ${sala.valorPorHora}</strong><br>
+                • Estimativa: <span id="estimativaResumo" class="font-semibold">Selecione início e fim</span><br>
+                • Sinal (50%): <span id="estimativaSinal" class="font-semibold">—</span>  Restante (50%): <span id="estimativaRestante" class="font-semibold">—</span>
+            </p>
+        </div>
+        </c:if>
+
+        <c:if test="${not empty sala}">
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Informações da Sala</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-600">Nome da Sala</p>
+                    <p class="text-lg font-medium">${sala.nome}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Setor</p>
+                    <p class="text-lg font-medium">${sala.setor.nome}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Valor por Hora</p>
+                    <p class="text-lg font-medium text-green-600">R$ ${sala.valorPorHora}/hora</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Capacidade</p>
+                    <p class="text-lg font-medium">${sala.capacidadeMaxima} pessoas</p>
+                </div>
+            </div>
+        </div>
+        </c:if>
+    <c:if test="${not empty confirmados}">
+        <div class="bg-white border rounded-lg p-4 mb-6">
+            <h3 class="text-sm font-medium text-gray-800 mb-2">Horários já confirmados nesta sala</h3>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Início</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fim</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <c:forEach var="c" items="${confirmados}">
+                        <tr>
+                            <td class="px-4 py-2 text-sm"><span data-datetime="${c.dataHoraInicio}">${c.dataHoraInicio}</span></td>
+                            <td class="px-4 py-2 text-sm"><span data-datetime="${c.dataHoraFim}">${c.dataHoraFim}</span></td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+            <p class="text-xs text-gray-500 mt-2">Dica: escolha um intervalo que não conflite com os horários acima.</p>
+        </div>
+        </c:if>
         <div class="bg-white shadow rounded-lg p-6">
             <form:form modelAttribute="form" action="${pageContext.request.contextPath}/recepcionista/agendamentos/instantaneo" method="post">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
@@ -54,14 +110,14 @@
 
                 <div class="mb-4">
                     <label for="dataHoraInicio" class="block text-sm font-medium text-gray-700 mb-2">Data e Hora de Início</label>
-                    <form:input type="datetime-local" id="dataHoraInicio" path="dataHoraInicio" step="60" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <form:input type="datetime-local" id="dataHoraInicio" path="dataHoraInicio" step="60" min="${minDateTime}" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     <form:errors path="dataHoraInicio" cssClass="text-red-600 text-sm" />
                     <p class="text-xs text-gray-500 mt-1">Você pode selecionar horas e minutos.</p>
                 </div>
 
                 <div class="mb-4">
                     <label for="dataHoraFim" class="block text-sm font-medium text-gray-700 mb-2">Data e Hora de Fim</label>
-                    <form:input type="datetime-local" id="dataHoraFim" path="dataHoraFim" step="60" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <form:input type="datetime-local" id="dataHoraFim" path="dataHoraFim" step="60" min="${minDateTime}" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     <form:errors path="dataHoraFim" cssClass="text-red-600 text-sm" />
                     <p class="text-xs text-gray-500 mt-1">Você pode selecionar horas e minutos.</p>
                 </div>
@@ -71,10 +127,9 @@
                     <form:textarea id="observacoes" path="observacoes" rows="3" cssClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-3 justify-between">
                     <button type="submit" 
-                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                        Criar e Confirmar Agendamento
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">    Criar e Confirmar Agendamento
                     </button>
                     <a href="<c:url value='/recepcionista/agendamentos?setorId=${setorId}'/>" 
                        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
@@ -83,6 +138,74 @@
                 </div>
             </form:form>
         </div>
+        
     </main>
+
+    <script>
+        // Preencher o resumo de preço com base na sala selecionada e nas datas
+        (function() {
+            const ini = document.getElementById('dataHoraInicio');
+            const fim = document.getElementById('dataHoraFim');
+            const resumo = document.getElementById('estimativaResumo');
+            const sinalEl = document.getElementById('estimativaSinal');
+            const restanteEl = document.getElementById('estimativaRestante');
+            const salaSelect = document.getElementById('salaId');
+            const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            function valorPorHoraSelecionado() {
+               
+                // o resumo só funciona quando uma sala já estiver selecionada e carregada.
+                const v = '${sala != null ? sala.valorPorHora : ""}';
+                if (!v) return 0;
+                return Number(String(v).replace(',', '.')) || 0;
+            }
+
+            function recalc() {
+                if (!resumo || !sinalEl || !restanteEl) return;
+                const i = ini && ini.value ? new Date(ini.value) : null;
+                const f = fim && fim.value ? new Date(fim.value) : null;
+                const vph = valorPorHoraSelecionado();
+                if (!i || !f || isNaN(i.getTime()) || isNaN(f.getTime())) {
+                    resumo.textContent = 'Selecione início e fim';
+                    sinalEl.textContent = '—';
+                    restanteEl.textContent = '—';
+                    return;
+                }
+                if (f <= i) {
+                    resumo.textContent = 'Fim deve ser após o início';
+                    sinalEl.textContent = '—';
+                    restanteEl.textContent = '—';
+                    return;
+                }
+                const minutos = Math.round((f - i) / 60000);
+                const total = (vph * minutos) / 60.0;
+                const sinal = total / 2.0;
+                const restante = total - sinal;
+                resumo.textContent = `${minutos} minutos • ${currency.format(total)}`;
+                sinalEl.textContent = currency.format(sinal);
+                restanteEl.textContent = currency.format(restante);
+            }
+
+            ini && ini.addEventListener('change', recalc);
+            fim && fim.addEventListener('change', recalc);
+            // Quando chegar com valores já preenchidos (ex.: erro de validação), recalcular
+            recalc();
+
+        
+            if (salaSelect) {
+                salaSelect.addEventListener('change', function() {
+                    const val = salaSelect.value;
+                    const setorInput = document.querySelector("input[name='setorId']");
+                    const setorId = setorInput ? setorInput.value : '';
+                    if (val) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('salaId', val);
+                        if (setorId) url.searchParams.set('setorId', setorId);
+                        window.location.href = url.toString();
+                    }
+                });
+            }
+        })();
+    </script>
 </body>
 </html>

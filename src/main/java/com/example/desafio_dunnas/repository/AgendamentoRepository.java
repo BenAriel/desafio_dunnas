@@ -2,6 +2,8 @@ package com.example.desafio_dunnas.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,15 +18,15 @@ import com.example.desafio_dunnas.model.Agendamento.StatusAgendamento;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
 
-       List<Agendamento> findByClienteIdOrderByDataCriacaoDesc(Long clienteId);
+       Page<Agendamento> findByClienteIdOrderByDataCriacaoDesc(Long clienteId, Pageable pageable);
 
-       List<Agendamento> findBySalaSetorIdOrderByDataCriacaoDesc(Long setorId);
+       Page<Agendamento> findBySalaSetorIdOrderByDataCriacaoDesc(Long setorId, Pageable pageable);
 
-       List<Agendamento> findByStatusOrderByDataCriacaoDesc(StatusAgendamento status);
+       Page<Agendamento> findByStatusOrderByDataCriacaoDesc(StatusAgendamento status, Pageable pageable);
 
        @Query("SELECT a FROM Agendamento a WHERE a.sala.setor.id = :setorId AND a.status = :status ORDER BY a.dataCriacao DESC")
-       List<Agendamento> findBySetorIdAndStatus(@Param("setorId") Long setorId,
-                     @Param("status") StatusAgendamento status);
+       Page<Agendamento> findBySetorIdAndStatus(@Param("setorId") Long setorId,
+                     @Param("status") StatusAgendamento status, Pageable pageable);
 
        @Query("SELECT a FROM Agendamento a WHERE a.sala.id = :salaId AND a.status IN ('CONFIRMADO', 'FINALIZADO') " +
                      "AND ((a.dataHoraInicio <= :dataFim AND a.dataHoraFim >= :dataInicio))")
@@ -43,23 +45,17 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
        @Query("SELECT a FROM Agendamento a WHERE a.sala.setor.id = :setorId " +
                      "AND a.dataHoraInicio >= :dataInicio AND a.dataHoraInicio <= :dataFim " +
                      "ORDER BY a.dataHoraInicio DESC")
-       List<Agendamento> findAgendamentosPorPeriodo(@Param("setorId") Long setorId,
+       Page<Agendamento> findAgendamentosPorPeriodo(@Param("setorId") Long setorId,
                      @Param("dataInicio") LocalDateTime dataInicio,
-                     @Param("dataFim") LocalDateTime dataFim);
+                     @Param("dataFim") LocalDateTime dataFim,
+                     Pageable pageable);
 
        @Query("SELECT a FROM Agendamento a WHERE a.dataHoraInicio >= :dataInicio AND a.dataHoraInicio <= :dataFim " +
                      "ORDER BY a.dataHoraInicio DESC")
-       List<Agendamento> findAgendamentosPorPeriodoGlobal(@Param("dataInicio") LocalDateTime dataInicio,
-                     @Param("dataFim") LocalDateTime dataFim);
+       Page<Agendamento> findAgendamentosPorPeriodoGlobal(@Param("dataInicio") LocalDateTime dataInicio,
+                     @Param("dataFim") LocalDateTime dataFim,
+                     Pageable pageable);
 
-       @Query("SELECT a FROM Agendamento a WHERE a.sala.id = :salaId AND a.status = 'CONFIRMADO' " +
-                     "AND a.dataHoraInicio >= :dataInicio AND a.dataHoraInicio <= :dataFim ORDER BY a.dataHoraInicio")
-       List<Agendamento> findConfirmadosPorSalaEPeriodo(@Param("salaId") Long salaId,
-                     @Param("dataInicio") LocalDateTime dataInicio,
-                     @Param("dataFim") LocalDateTime dataFim);
-
-       @Query("SELECT a FROM Agendamento a WHERE a.sala.id = :salaId AND a.status IN ('CONFIRMADO','FINALIZADO') ORDER BY a.dataHoraInicio")
-       List<Agendamento> findConfirmadosPorSala(@Param("salaId") Long salaId);
 
        @Query("SELECT a FROM Agendamento a WHERE a.sala.id = :salaId AND a.status = 'CONFIRMADO' " +
                      "AND a.dataHoraFim >= :agora ORDER BY a.dataHoraInicio")

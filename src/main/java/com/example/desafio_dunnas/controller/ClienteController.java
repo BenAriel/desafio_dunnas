@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,26 +48,36 @@ public class ClienteController {
     }
 
     @GetMapping("/setores")
-    public String listarSetores(Model model) {
-        List<Setor> setores = setorService.findSetoresAbertos();
-        model.addAttribute("setores", setores);
+    public String listarSetores(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size,
+            Model model) {
+        var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+        var setoresPage = setorService.findSetoresAbertos(pageable);
+        model.addAttribute("setores", setoresPage.getContent());
+        model.addAttribute("page", setoresPage);
         return "cliente/setores";
     }
 
     @GetMapping("/salas")
-    public String listarSalas(@RequestParam(required = false) Long setorId, Model model) {
-        List<Sala> salas;
+    public String listarSalas(@RequestParam(required = false) Long setorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "9") int size,
+            Model model) {
+        var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+
+        Page<Sala> salasPage;
         if (setorId != null) {
-            salas = salaService.findSalasAtivasPorSetorAberto(setorId);
+            salasPage = salaService.findSalasAtivasPorSetorAberto(setorId, pageable);
             Setor setor = setorService.findById(setorId)
                     .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado"));
             model.addAttribute("setor", setor);
         } else {
-            salas = salaService.findSalasAtivasDeSetoresAbertos();
+            salasPage = salaService.findSalasAtivasDeSetoresAbertos(pageable);
         }
 
         List<Setor> setores = setorService.findAllNaoExcluidos();
-        model.addAttribute("salas", salas);
+        model.addAttribute("salas", salasPage.getContent());
+        model.addAttribute("page", salasPage);
         model.addAttribute("setores", setores);
         model.addAttribute("setorId", setorId);
 
@@ -144,13 +156,17 @@ public class ClienteController {
     }
 
     @GetMapping("/agendamentos")
-    public String listarAgendamentos(Model model, RedirectAttributes redirectAttributes) {
+    public String listarAgendamentos(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model, RedirectAttributes redirectAttributes) {
         try {
             Cliente cliente = clienteService.getClienteLogado()
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado. Faça login novamente."));
 
-            List<Agendamento> agendamentos = agendamentoService.findByClienteId(cliente.getId());
-            model.addAttribute("agendamentos", agendamentos);
+            var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+            var agendamentos = agendamentoService.findByClienteId(cliente.getId(), pageable);
+            model.addAttribute("agendamentos", agendamentos.getContent());
+            model.addAttribute("page", agendamentos);
             model.addAttribute("clienteId", cliente.getId());
             model.addAttribute("now", java.time.LocalDateTime.now());
             return "cliente/agendamentos";
@@ -180,7 +196,8 @@ public class ClienteController {
         try {
             Cliente cliente = clienteService.getClienteLogado()
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado. Faça login novamente."));
-            var historico = relatorioService.historicoPorCliente(cliente.getId());
+            var historico = relatorioService.pageHistoricoPorCliente(cliente.getId(), PageRequest.of(0, 100))
+                    .getContent();
             model.addAttribute("historicos", historico);
             return "cliente/historico";
         } catch (Exception e) {

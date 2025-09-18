@@ -42,13 +42,21 @@
                 </div>
 
                 <div class="mb-6">
-                    <label class="flex items-center">
-                        <form:checkbox path="aberto" />
-                        <span class="ml-2 text-sm text-gray-700">Setor Aberto</span>
-                    </label>
+                    <c:choose>
+                        <c:when test="${not empty form.id}">
+                            <label class="flex items-center">
+                                <form:checkbox path="aberto" />
+                                <span class="ml-2 text-sm text-gray-700">Setor Aberto</span>
+                            </label>
+                            <form:errors path="aberto" cssClass="text-red-600 text-sm" />
+                        </c:when>
+                        <c:otherwise>
+                            <p class="text-sm text-gray-500">O Setor só pode ser aberto com um recepcionista alocado.</p>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-3 justify-between">
                     <button type="submit" 
                             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
                         ${form.id != null ? 'Atualizar' : 'Criar'}

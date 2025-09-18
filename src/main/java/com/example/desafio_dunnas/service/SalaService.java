@@ -2,6 +2,8 @@ package com.example.desafio_dunnas.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -20,12 +22,18 @@ public class SalaService {
     private final SalaRepository salaRepository;
 
     // Consultas que consideram soft delete
-    public List<Sala> findAllNaoExcluidas() {
-        return salaRepository.findAllNaoExcluidas();
+    public Page<Sala> findAllNaoExcluidas(Pageable pageable) {
+        return salaRepository.findAllNaoExcluidas(pageable);
     }
 
-    public List<Sala> findAllExcluidas() {
-        return salaRepository.findAllExcluidas();
+    public Page<Sala> findAllNaoExcluidasBySetor(Long setorId, Pageable pageable) {
+        if (setorId == null)
+            return findAllNaoExcluidas(pageable);
+        return salaRepository.findAllNaoExcluidasBySetor(setorId, pageable);
+    }
+
+    public Page<Sala> findAllExcluidas(Pageable pageable) {
+        return salaRepository.findAllExcluidas(pageable);
     }
 
     public List<Sala> findSalasAtivasPorSetor(Long setorId) {
@@ -36,8 +44,16 @@ public class SalaService {
         return salaRepository.findSalasAtivasPorSetorAberto(setorId);
     }
 
+    public Page<Sala> findSalasAtivasPorSetorAberto(Long setorId, Pageable pageable) {
+        return salaRepository.findSalasAtivasPorSetorAberto(setorId, pageable);
+    }
+
     public List<Sala> findSalasAtivasDeSetoresAbertos() {
         return salaRepository.findSalasAtivasDeSetoresAbertos();
+    }
+
+    public Page<Sala> findSalasAtivasDeSetoresAbertos(Pageable pageable) {
+        return salaRepository.findSalasAtivasDeSetoresAbertos(pageable);
     }
 
     public Optional<Sala> findById(Long id) {

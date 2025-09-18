@@ -1,8 +1,6 @@
 package com.example.desafio_dunnas.controller;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -16,22 +14,23 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.validation.BindingResult;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 
 import com.example.desafio_dunnas.config.DbErrorMessageResolver;
-
+import com.example.desafio_dunnas.dto.relatorio.RelatorioFiltroDTO;
 import com.example.desafio_dunnas.form.recepcionista.RecepcionistaForm;
 import com.example.desafio_dunnas.form.recepcionista.RecepcionistaEditForm;
 import com.example.desafio_dunnas.form.sala.SalaForm;
 import com.example.desafio_dunnas.form.setor.SetorForm;
-import com.example.desafio_dunnas.model.Recepcionista;
 import com.example.desafio_dunnas.model.Sala;
 import com.example.desafio_dunnas.model.Setor;
-import com.example.desafio_dunnas.model.Agendamento.StatusAgendamento;
+import com.example.desafio_dunnas.model.Cliente;
 import com.example.desafio_dunnas.service.AuthService;
 import com.example.desafio_dunnas.service.RecepcionistaService;
-import com.example.desafio_dunnas.service.RelatorioService;
 import com.example.desafio_dunnas.service.SalaService;
 import com.example.desafio_dunnas.service.SetorService;
+import com.example.desafio_dunnas.service.ClienteService;
+import com.example.desafio_dunnas.service.RelatorioService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,8 +42,10 @@ public class AdministradorController {
     private final RecepcionistaService recepcionistaService;
     private final SetorService setorService;
     private final SalaService salaService;
-    private final RelatorioService relatorioService;
+    private final RelatorioService relatorioAdminFacadeService;
     private final AuthService authUtils;
+
+    private final ClienteService clienteService;
 
     @GetMapping({ "", "/" })
     public String adminHome() {
@@ -53,9 +54,13 @@ public class AdministradorController {
 
     // ========== RECEPCIONISTAS ==========
     @GetMapping("/recepcionistas")
-    public String listarRecepcionistas(Model model) {
-        List<Recepcionista> recepcionistas = recepcionistaService.findAll();
-        model.addAttribute("recepcionistas", recepcionistas);
+    public String listarRecepcionistas(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+        var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+        var receps = recepcionistaService.findAll(pageable);
+        model.addAttribute("recepcionistas", receps.getContent());
+        model.addAttribute("page", receps);
         return "admin/recepcionistas";
     }
 
@@ -107,6 +112,7 @@ public class AdministradorController {
             return "redirect:/admin/recepcionistas";
         } catch (DataIntegrityViolationException ex) {
             model.addAttribute("error", DbErrorMessageResolver.resolve(ex));
+            model.addAttribute("clientes", clienteService.findAll());
             model.addAttribute("setores", setorService.findAllNaoExcluidos());
             return "admin/recepcionista-edit-form";
         } catch (Exception e) {
@@ -162,16 +168,24 @@ public class AdministradorController {
 
     // ========== SETORES ==========
     @GetMapping("/setores")
-    public String listarSetores(Model model) {
-        List<Setor> setores = setorService.findAllNaoExcluidos();
-        model.addAttribute("setores", setores);
+    public String listarSetores(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+        var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+        var setores = setorService.findAllNaoExcluidos(pageable);
+        model.addAttribute("setores", setores.getContent());
+        model.addAttribute("page", setores);
         return "admin/setores";
     }
 
     @GetMapping("/setores/excluidos")
-    public String listarSetoresExcluidos(Model model) {
-        List<Setor> setores = setorService.findAllExcluidos();
-        model.addAttribute("setores", setores);
+    public String listarSetoresExcluidos(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+        var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+        var setores = setorService.findAllExcluidos(pageable);
+        model.addAttribute("setores", setores.getContent());
+        model.addAttribute("page", setores);
         return "admin/setores-excluidos";
     }
 
@@ -268,17 +282,18 @@ public class AdministradorController {
 
     // ========== SALAS ==========
     @GetMapping("/salas")
-    public String listarSalas(Model model) {
-        List<Sala> salas = salaService.findAllNaoExcluidas();
-        model.addAttribute("salas", salas);
+    public String listarSalas(@RequestParam(required = false) Long setorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+        var pageable = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+        var salas = salaService.findAllNaoExcluidasBySetor(setorId, pageable);
+        List<Setor> setores = setorService.findAllNaoExcluidos();
+        model.addAttribute("setores", setores);
+        model.addAttribute("setorId", setorId);
+        model.addAttribute("salas", salas.getContent());
+        model.addAttribute("page", salas);
         return "admin/salas";
-    }
-
-    @GetMapping("/salas/excluidas")
-    public String listarSalasExcluidas(Model model) {
-        List<Sala> salas = salaService.findAllExcluidas();
-        model.addAttribute("salas", salas);
-        return "admin/salas-excluidas";
     }
 
     @GetMapping("/salas/novo")
@@ -370,59 +385,47 @@ public class AdministradorController {
             @RequestParam(required = false) String dataFim,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long clienteId,
+            @RequestParam(defaultValue = "0") int agPage,
+            @RequestParam(defaultValue = "5") int agSize,
+            @RequestParam(defaultValue = "0") int histPage,
+            @RequestParam(defaultValue = "5") int histSize,
+            @RequestParam(defaultValue = "0") int txPage,
+            @RequestParam(defaultValue = "5") int txSize,
             Model model) {
 
+        List<Cliente> clientes = clienteService.findAll();
         List<Setor> setores = setorService.findAllNaoExcluidos();
         model.addAttribute("setores", setores);
         model.addAttribute("setorId", setorId);
         model.addAttribute("status", status);
+        model.addAttribute("clientes", clientes);
         model.addAttribute("clienteId", clienteId);
 
         try {
-            LocalDate ini = (dataInicio != null && !dataInicio.isBlank())
-                    ? LocalDate.parse(dataInicio)
-                    : LocalDate.now().minusDays(30);
-            LocalDate fimD = (dataFim != null && !dataFim.isBlank())
-                    ? LocalDate.parse(dataFim)
-                    : LocalDate.now();
+            var result = relatorioAdminFacadeService.gerarRelatorio(
+                    RelatorioFiltroDTO.builder()
+                            .setorId(setorId)
+                            .dataInicio(dataInicio)
+                            .dataFim(dataFim)
+                            .status(status)
+                            .clienteId(clienteId)
+                            .agPage(agPage)
+                            .agSize(agSize)
+                            .histPage(histPage)
+                            .histSize(histSize)
+                            .txPage(txPage)
+                            .txSize(txSize)
+                            .build());
 
-            LocalDateTime inicio = ini.atStartOfDay();
-            LocalDateTime fim = fimD.atTime(23, 59, 59);
-
-            model.addAttribute("dataInicio", ini.toString());
-            model.addAttribute("dataFim", fimD.toString());
-
-            var agendamentos = relatorioService.agendamentosPorPeriodoSetor(setorId, inicio, fim);
-            if (status != null && !status.isBlank() && !"TODOS".equalsIgnoreCase(status)) {
-                try {
-                    StatusAgendamento st = StatusAgendamento.valueOf(status.toUpperCase());
-                    agendamentos = agendamentos.stream().filter(a -> a.getStatus() == st).toList();
-                } catch (IllegalArgumentException ignore) {
-                }
-            }
-            if (clienteId != null) {
-                Long cid = clienteId;
-                agendamentos = agendamentos.stream()
-                        .filter(a -> a.getCliente() != null && a.getCliente().getId().equals(cid)).toList();
-            }
-            var transacoes = relatorioService.transacoesConfirmadasPorPeriodoSetor(setorId, inicio, fim);
-            var valorTotal = relatorioService.valorTransacoesConfirmadasPorPeriodoSetor(setorId, inicio, fim);
-
-            model.addAttribute("agendamentos", agendamentos);
-            model.addAttribute("transacoes", transacoes);
-            model.addAttribute("valorTotal", valorTotal);
-
-            if (setorId != null) {
-                var historicosSetor = relatorioService.historicoPorSetor(setorId);
-                var historicosFiltrados = historicosSetor.stream()
-                        .filter(h -> !h.getDataMudanca().isBefore(inicio) && !h.getDataMudanca().isAfter(fim))
-                        .toList();
-                model.addAttribute("historicos", historicosFiltrados);
-            } else {
-                var historicos = relatorioService.historicoPorPeriodo(inicio, fim);
-                model.addAttribute("historicos", historicos);
-            }
-
+            model.addAttribute("dataInicio", result.getDataInicioStr());
+            model.addAttribute("dataFim", result.getDataFimStr());
+            model.addAttribute("agendamentos", result.getAgendamentos());
+            model.addAttribute("agPage", result.getAgPage());
+            model.addAttribute("transacoes", result.getTransacoes());
+            model.addAttribute("txPage", result.getTxPage());
+            model.addAttribute("valorCaixa", result.getValorCaixa());
+            model.addAttribute("historicos", result.getHistoricos());
+            model.addAttribute("histPage", result.getHistPage());
         } catch (Exception e) {
             model.addAttribute("error", DbErrorMessageResolver.resolve(e));
         }

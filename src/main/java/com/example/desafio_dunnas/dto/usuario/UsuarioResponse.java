@@ -1,4 +1,4 @@
-package com.example.desafio_dunnas.form.usuario;
+package com.example.desafio_dunnas.dto.usuario;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

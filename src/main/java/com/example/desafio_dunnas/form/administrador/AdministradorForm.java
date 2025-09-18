@@ -23,6 +23,7 @@ public class AdministradorForm {
     @NotBlank(message = "Matrícula é obrigatória")
     private String matricula;
 
-    @Pattern(regexp = "^$|\\d{11}", message = "CPF deve ter 11 dígitos")
+    @NotBlank(message = "CPF é obrigatório")
+    @Pattern(regexp = "\\d{11}", message = "CPF deve ter 11 dígitos numéricos")
     private String cpf;
 }

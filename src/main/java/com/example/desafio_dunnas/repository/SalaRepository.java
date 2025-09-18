@@ -1,6 +1,8 @@
 package com.example.desafio_dunnas.repository;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,18 +23,27 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
         @Query("SELECT s FROM Sala s WHERE s.setor.id = :setorId AND s.ativa = true AND s.setor.aberto = true AND s.deletedAt IS NULL ORDER BY s.nome")
         List<Sala> findSalasAtivasPorSetorAberto(@Param("setorId") Long setorId);
 
+        @Query("SELECT s FROM Sala s WHERE s.setor.id = :setorId AND s.ativa = true AND s.setor.aberto = true AND s.deletedAt IS NULL ORDER BY s.nome")
+        Page<Sala> findSalasAtivasPorSetorAberto(@Param("setorId") Long setorId, Pageable pageable);
+
         @Query("SELECT s FROM Sala s WHERE s.ativa = true AND s.deletedAt IS NULL ORDER BY s.setor.nome, s.nome")
         List<Sala> findAllSalasAtivas();
 
         @Query("SELECT s FROM Sala s WHERE s.ativa = true AND s.setor.aberto = true AND s.deletedAt IS NULL ORDER BY s.setor.nome, s.nome")
         List<Sala> findSalasAtivasDeSetoresAbertos();
 
+        @Query("SELECT s FROM Sala s WHERE s.ativa = true AND s.setor.aberto = true AND s.deletedAt IS NULL ORDER BY s.setor.nome, s.nome")
+        Page<Sala> findSalasAtivasDeSetoresAbertos(Pageable pageable);
+
         // Consultas que incluem salas soft deleted (para administração)
         @Query("SELECT s FROM Sala s WHERE s.deletedAt IS NULL ORDER BY s.setor.nome, s.nome")
-        List<Sala> findAllNaoExcluidas();
+        Page<Sala> findAllNaoExcluidas(Pageable pageable);
+
+        @Query("SELECT s FROM Sala s WHERE s.deletedAt IS NULL AND s.setor.id = :setorId ORDER BY s.setor.nome, s.nome")
+        Page<Sala> findAllNaoExcluidasBySetor(@Param("setorId") Long setorId, Pageable pageable);
 
         @Query("SELECT s FROM Sala s WHERE s.deletedAt IS NOT NULL ORDER BY s.deletedAt DESC")
-        List<Sala> findAllExcluidas();
+        Page<Sala> findAllExcluidas(Pageable pageable);
 
         // Procedures para operações CRUD
         @Transactional

@@ -25,7 +25,7 @@ public class Cliente {
     @JoinColumn(name = "usuario_id", nullable = false, unique = true)
     private Usuario usuario;
 
-    @Column(unique = true, length = 11)
+    @Column(nullable = false, unique = true, length = 11)
     private String telefone;
 
     @Column(length = 50)

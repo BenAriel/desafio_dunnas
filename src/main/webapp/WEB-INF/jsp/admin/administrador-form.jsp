@@ -24,8 +24,8 @@
       </div>
 
       <div class="mb-6">
-        <label class="block text-sm font-medium mb-1" for="cpf">CPF (11 dígitos, opcional)</label>
-        <input class="border rounded w-full p-2" type="text" id="cpf" name="cpf" maxlength="11" />
+        <label class="block text-sm font-medium mb-1" for="cpf">CPF</label>
+        <input class="border rounded w-full p-2" type="text" id="cpf" name="cpf" inputmode="numeric" maxlength="14" />
       </div>
 
       <div class="flex gap-2">
@@ -34,5 +34,22 @@
       </div>
     </form>
   </div>
+  <script>
+    (function(){
+      var Utils = window.Utils || {};
+      var el = document.getElementById('cpf');
+      if (el && Utils.cpfMask) {
+        el.addEventListener('input', function(){
+          var raw = Utils.cpfMask.unmask(el.value);
+          el.value = Utils.cpfMask.mask(raw);
+        });
+        if (el.form) {
+          el.form.addEventListener('submit', function(){
+            el.value = Utils.cpfMask.unmask(el.value);
+          });
+        }
+      }
+    })();
+  </script>
 </body>
 </html>

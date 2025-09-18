@@ -31,6 +31,10 @@ public class ClienteService {
             throw new IllegalArgumentException("email é obrigatório");
         if (senhaPlano == null || senhaPlano.isBlank())
             throw new IllegalArgumentException("senha é obrigatória");
+        if (telefone == null || telefone.isBlank())
+            throw new IllegalArgumentException("telefone é obrigatório");
+        if (telefone.length() != 11)
+            throw new IllegalArgumentException("telefone deve ter 11 dígitos");
 
         String senhaHash = passwordEncoder.encode(senhaPlano);
         clienteRepository.criarUsuarioECliente(nome, email, senhaHash, telefone, profissao);

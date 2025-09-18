@@ -106,6 +106,136 @@
     });
   }
 
+  // Modal de confirmação global
+  function findConfirmModal(root = document) {
+    return root.getElementById("confirm-modal");
+  }
+
+  function openConfirmModal(message, onConfirm) {
+    var modal = findConfirmModal(document);
+    if (!modal) {
+      if (typeof onConfirm === "function") onConfirm(false);
+      return;
+    }
+    try {
+      var msgNode = modal.querySelector("#confirm-modal-message");
+      if (msgNode)
+        msgNode.textContent = message || "Tem certeza que deseja prosseguir?";
+      var confirmBtn = modal.querySelector("#confirm-modal-confirm");
+      var cancelBtn = modal.querySelector("#confirm-modal-cancel");
+
+      confirmBtn.onclick = null;
+      cancelBtn.onclick = null;
+
+      var close = function () {
+        if (typeof modal.close === "function") {
+          try {
+            modal.close();
+          } catch (_) {}
+        } else {
+          modal.setAttribute("data-state", "closed");
+          modal.style.display = "none";
+        }
+      };
+
+      confirmBtn.onclick = function () {
+        try {
+          if (typeof onConfirm === "function") onConfirm(true);
+        } finally {
+          close();
+        }
+      };
+      cancelBtn.onclick = function () {
+        try {
+          if (typeof onConfirm === "function") onConfirm(false);
+        } finally {
+          close();
+        }
+      };
+
+      // Abre modal
+      if (typeof modal.showModal === "function") {
+        modal.showModal();
+      } else {
+        modal.removeAttribute("data-state");
+        modal.style.display = "block";
+      }
+    } catch (_) {
+      if (typeof onConfirm === "function") onConfirm(false);
+    }
+  }
+
+  function wireGlobalConfirmations(root = document) {
+    root.addEventListener(
+      "click",
+      function (ev) {
+        var t = ev.target;
+        while (t && t !== root) {
+          if (
+            t.matches &&
+            (t.matches("[data-confirm]") || t.matches("[data-confirm-message]"))
+          ) {
+            var msg =
+              t.getAttribute("data-confirm") ||
+              t.getAttribute("data-confirm-message") ||
+              "Tem certeza?";
+            var form = t.closest && t.closest("form");
+            if (form) {
+              ev.preventDefault();
+              openConfirmModal(msg, function (ok) {
+                if (ok) {
+                  try {
+                    form.submit();
+                  } catch (_) {}
+                }
+              });
+            } else if (t.tagName === "A" && t.href) {
+              ev.preventDefault();
+              openConfirmModal(msg, function (ok) {
+                if (ok) {
+                  window.location.href = t.href;
+                }
+              });
+            } else {
+              ev.preventDefault();
+              openConfirmModal(msg, function (ok) {
+                if (ok) {
+                  try {
+                    t.click();
+                  } catch (_) {}
+                }
+              });
+            }
+            return;
+          }
+          t = t.parentElement;
+        }
+      },
+      true
+    );
+
+    root.addEventListener(
+      "submit",
+      function (ev) {
+        var form = ev.target;
+        try {
+          if (form && form.matches && form.matches("form[data-confirm]")) {
+            var msg = form.getAttribute("data-confirm") || "Tem certeza?";
+            ev.preventDefault();
+            openConfirmModal(msg, function (ok) {
+              if (ok) {
+                try {
+                  form.submit();
+                } catch (_) {}
+              }
+            });
+          }
+        } catch (_) {}
+      },
+      true
+    );
+  }
+
   const Utils = {
     cpfMask,
     telefoneMask,
@@ -116,6 +246,8 @@
     parseIsoToLocal,
     formatDateNodes,
     initAutoDismiss,
+    openConfirmModal,
+    wireGlobalConfirmations,
   };
 
   global.Utils = Object.assign({}, global.Utils || {}, Utils);
@@ -126,6 +258,9 @@
     } catch (_) {}
     try {
       initAutoDismiss();
+    } catch (_) {}
+    try {
+      wireGlobalConfirmations();
     } catch (_) {}
   });
 })(window);
