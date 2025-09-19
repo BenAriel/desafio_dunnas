@@ -3,16 +3,16 @@
 ## Sumário
 
 - Visão geral do sistema
-- Funcionalidades por papel (Admin, Recepcionista, Cliente)
-- Arquitetura (Stack e MVC)
+- Stack e arquitetura
 - Estrutura de pastas do projeto
-- Modelo de dados (diagrama e tabelas)
+- Autenticação, formulários e validação
+- Funcionalidades por papel (Admin, Recepcionista, Cliente)
+- Modelo de dados (resumo)
 - Regras de negócio: no Banco vs na Aplicação
 - Fluxos principais (agendar, confirmar, finalizar, cancelar)
 - Relatórios e caixa
-- Setup: build, execução, credenciais, migrações
-- Decisões de arquitetura
-- Como contribuir e próximos passos
+- Onde está cada regra (resumo)
+- Setup (Windows)
 
 ---
 
@@ -106,7 +106,8 @@ Autenticação (Spring Security)
 - Login via formulário (`/login`) com parâmetros `email` e `password`.
 - Pós-login redireciona por papel (handler customizado): Admin → `/admin`, Recepcionista → `/recepcionista`, Cliente → `/cliente`.
 - Logout em `/logout` com redirecionamento para `/login?logout`.
-- Recursos estáticos usam uma `SecurityFilterChain` dedicada, `STATELESS` e com CSRF desabilitado.
+- Cadeia principal (rotas da aplicação): stateful (sessão HTTP); o `SecurityContext` é persistido via `SecurityContextRepository`.
+- Recursos estáticos: `SecurityFilterChain` dedicada, `STATELESS` e com CSRF desabilitado.
 
 UserDetails e carregamento de usuário
 
@@ -215,58 +216,58 @@ erDiagram
   tb_usuarios ||--o{ tb_salas : "deleted_by"
 
   tb_cargos {
-    bigint id PK
-    varchar nome UNIQUE
+    bigint id
+    varchar nome
   }
   tb_usuarios {
-    bigint id PK
+    bigint id
     varchar nome
-    varchar email UNIQUE
+    varchar email
     varchar senha
     boolean ativo
-    bigint role_id FK
+    bigint role_id
   }
   tb_administradores {
-    bigint id PK
-    bigint usuario_id FK UNIQUE
-    varchar matricula UNIQUE
-    varchar cpf UNIQUE
+    bigint id
+    bigint usuario_id
+    varchar matricula
+    varchar cpf
   }
   tb_recepcionistas {
-    bigint id PK
-    bigint usuario_id FK UNIQUE
-    bigint setor_id FK UNIQUE
-    varchar matricula UNIQUE
-    varchar cpf UNIQUE
+    bigint id
+    bigint usuario_id
+    bigint setor_id
+    varchar matricula
+    varchar cpf
   }
   tb_clientes {
-    bigint id PK
-    bigint usuario_id FK UNIQUE
-    varchar telefone UNIQUE
+    bigint id
+    bigint usuario_id
+    varchar telefone
     varchar profissao
   }
   tb_setores {
-    bigint id PK
-    varchar nome UNIQUE
+    bigint id
+    varchar nome
     numeric caixa
     boolean aberto
     timestamp deleted_at
-    bigint deleted_by FK
+    bigint deleted_by
   }
   tb_salas {
-    bigint id PK
+    bigint id
     varchar nome
     numeric valor_por_hora
     int capacidade_maxima
     boolean ativa
-    bigint setor_id FK
+    bigint setor_id
     timestamp deleted_at
-    bigint deleted_by FK
+    bigint deleted_by
   }
   tb_agendamentos {
-    bigint id PK
-    bigint sala_id FK
-    bigint cliente_id FK
+    bigint id
+    bigint sala_id
+    bigint cliente_id
     timestamp data_hora_inicio
     timestamp data_hora_fim
     numeric valor_total
@@ -279,8 +280,8 @@ erDiagram
     timestamp data_finalizacao
   }
   tb_transacoes {
-    bigint id PK
-    bigint agendamento_id FK
+    bigint id
+    bigint agendamento_id
     numeric valor
     varchar tipo
     varchar status
@@ -289,8 +290,8 @@ erDiagram
     varchar metodo_pagamento
   }
   tb_historico_agendamentos {
-    bigint id PK
-    bigint agendamento_id FK
+    bigint id
+    bigint agendamento_id
     varchar status_anterior
     varchar status_novo
     timestamp data_mudanca
