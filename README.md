@@ -163,6 +163,17 @@ CSRF
 
 Tabelas centrais:
 
+- `tb_cargos` (perfis/roles)
+- `tb_usuarios` (nome, email, senha, ativo, role_id)
+- `tb_administradores` (usuario_id, matricula, cpf)
+- `tb_recepcionistas` (usuario_id, setor_id único, matricula, cpf)
+- `tb_clientes` (usuario_id, telefone, profissao)
+- `tb_setores` (nome, caixa, aberto, deleted_at, deleted_by)
+- `tb_salas` (nome, valor_por_hora, capacidade_maxima, ativa, setor_id, deleted_at, deleted_by)
+- `tb_agendamentos` (sala_id, cliente_id, data_hora_inicio/fim, valores, status, observacoes, datas)
+- `tb_transacoes` (agendamento_id, valor, tipo, status, data_transacao, descricao, metodo_pagamento)
+- `tb_historico_agendamentos` (agendamento_id, status_anterior, status_novo, data_mudanca, observacao)
+
 ### Diagrama ER
 
 O diagrama entidade-relacionamento (extraído do PostgreSQL) está abaixo para referência rápida das relações entre tabelas:
@@ -170,6 +181,19 @@ O diagrama entidade-relacionamento (extraído do PostgreSQL) está abaixo para r
 ![Diagrama ER](diagrama.png)
 
 Principais relações:
+
+- `tb_cargos` 1..N `tb_usuarios` (via role_id)
+- `tb_usuarios` 1..1 `tb_administradores` (via usuario_id)
+- `tb_usuarios` 1..1 `tb_recepcionistas` (via usuario_id)
+- `tb_usuarios` 1..1 `tb_clientes` (via usuario_id)
+- `tb_setores` 1..N `tb_salas` (via setor_id)
+- `tb_setores` 1..1 `tb_recepcionistas` (via setor_id único)
+- `tb_salas` 1..N `tb_agendamentos` (via sala_id)
+- `tb_clientes` 1..N `tb_agendamentos` (via cliente_id)
+- `tb_agendamentos` 1..N `tb_transacoes` (via agendamento_id)
+- `tb_agendamentos` 1..N `tb_historico_agendamentos` (via agendamento_id)
+- `tb_usuarios` 1..N `tb_setores` (via deleted_by)
+- `tb_usuarios` 1..N `tb_salas` (via deleted_by)
 
 Diagrama ER (Mermaid):
 
@@ -181,36 +205,76 @@ erDiagram
   tb_usuarios ||--|| tb_clientes : "usuario_id"
 
   tb_setores ||--o{ tb_salas : "setor_id"
+  tb_setores ||--|| tb_recepcionistas : "setor_id (unique)"
   tb_salas ||--o{ tb_agendamentos : "sala_id"
   tb_clientes ||--o{ tb_agendamentos : "cliente_id"
   tb_agendamentos ||--o{ tb_transacoes : "agendamento_id"
+  tb_agendamentos ||--o{ tb_historico_agendamentos : "agendamento_id"
 
-  tb_setores {
+  tb_usuarios ||--o{ tb_setores : "deleted_by"
+  tb_usuarios ||--o{ tb_salas : "deleted_by"
+
+  tb_cargos {
+    bigint id PK
+    varchar nome UNIQUE
+  }
+  tb_usuarios {
     bigint id PK
     varchar nome
+    varchar email UNIQUE
+    varchar senha
+    boolean ativo
+    bigint role_id FK
+  }
+  tb_administradores {
+    bigint id PK
+    bigint usuario_id FK UNIQUE
+    varchar matricula UNIQUE
+    varchar cpf UNIQUE
+  }
+  tb_recepcionistas {
+    bigint id PK
+    bigint usuario_id FK UNIQUE
+    bigint setor_id FK UNIQUE
+    varchar matricula UNIQUE
+    varchar cpf UNIQUE
+  }
+  tb_clientes {
+    bigint id PK
+    bigint usuario_id FK UNIQUE
+    varchar telefone UNIQUE
+    varchar profissao
+  }
+  tb_setores {
+    bigint id PK
+    varchar nome UNIQUE
     numeric caixa
     boolean aberto
     timestamp deleted_at
+    bigint deleted_by FK
   }
   tb_salas {
     bigint id PK
     varchar nome
-    numeric valor_aluguel
+    numeric valor_por_hora
     int capacidade_maxima
-    bigint setor_id FK
     boolean ativa
+    bigint setor_id FK
     timestamp deleted_at
+    bigint deleted_by FK
   }
   tb_agendamentos {
     bigint id PK
     bigint sala_id FK
     bigint cliente_id FK
-    timestamp data_inicio
-    timestamp data_fim
+    timestamp data_hora_inicio
+    timestamp data_hora_fim
     numeric valor_total
     numeric valor_sinal
     numeric valor_restante
     varchar status
+    varchar observacoes
+    timestamp data_criacao
     timestamp data_confirmacao
     timestamp data_finalizacao
   }
@@ -220,7 +284,17 @@ erDiagram
     numeric valor
     varchar tipo
     varchar status
-    timestamp created_at
+    timestamp data_transacao
+    varchar descricao
+    varchar metodo_pagamento
+  }
+  tb_historico_agendamentos {
+    bigint id PK
+    bigint agendamento_id FK
+    varchar status_anterior
+    varchar status_novo
+    timestamp data_mudanca
+    varchar observacao
   }
 ```
 
@@ -265,7 +339,7 @@ Com isso, >50% da lógica de negócio reside no banco, atendendo ao desafio.
 
 3. Finalização da utilização (Recepcionista)
 
-- Disponível apenas para agendamentos `CONFIRMADO` cujo horário de início já passou.
+- Disponível apenas para agendamentos `CONFIRMADO` cujo horário de início já passou, pois nestes casos como o agendamento não foi cancelado até o horario,quer dizer que ele iniciou.
 - O sistema impede finalizar fora de ordem: se existir um agendamento anterior na mesma sala ainda `CONFIRMADO`, ele deve ser finalizado primeiro.
 - O recepcionista pode finalizar o atendimento antes da hora de fim, mas aparecerá um modal de confirmação.
 - Ao finalizar, o sistema registra o pagamento final (valor restante), marca a data de finalização e atualiza o caixa do setor.
