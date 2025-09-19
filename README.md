@@ -12,7 +12,6 @@
 - Relatórios e caixa
 - Setup: build, execução, credenciais, migrações
 - Decisões de arquitetura
-- Endpoints/Views principais
 - Como contribuir e próximos passos
 
 ---
@@ -48,11 +47,46 @@ Padrão MVC:
 - `src/main/resources/`
   - `application.properties`: configurações do Spring, datasource, Flyway e ViewResolver.
   - `db/migration/`: scripts Flyway versionados (V1**...V28**) com schema, regras e dados de exemplo.
-  - `templates/`: recursos auxiliares (se aplicável) e estáticos.
+  - `static/`: arquivos estáticos servidos pela aplicação (imagens, JS, CSS).
+  - `templates/`: recursos auxiliares (quando aplicável).
 - `src/main/webapp/WEB-INF/jsp/`: páginas JSP separadas por papel (admin, recepcionista, cliente).
 - `src/test/java/`: testes unitários/de integração (quando presentes).
 - `pom.xml`: dependências e plugins Maven.
 - `mvnw`, `mvnw.cmd`: wrappers Maven para build reprodutível.
+
+Visão em árvore (parcial):
+
+```text
+desafio_dunnas/
+├─ pom.xml
+├─ mvnw / mvnw.cmd
+├─ src/
+│  ├─ main/
+│  │  ├─ java/
+│  │  │  └─ com/example/desafio_dunnas/
+│  │  │     ├─ controller/
+│  │  │     ├─ service/
+│  │  │     ├─ repository/
+│  │  │     └─ model/                 # entidades JPA
+│  │  ├─ resources/
+│  │  │  ├─ application.properties
+│  │  │  ├─ db/migration/             # Flyway (V1__...V28__)
+│  │  │  ├─ static/
+│  │  │  │  ├─ images/
+│  │  │  │  └─ js/
+│  │  │  └─ templates/
+│  │  └─ webapp/
+│  │     └─ WEB-INF/jsp/              # JSPs (admin, recepcionista, cliente)
+│  └─ test/
+│     └─ java/                        # testes
+└─ target/                            # artefatos gerados pelo Maven
+```
+
+Observações:
+
+- JSPs ficam sob `WEB-INF` para evitar acesso direto por URL; são renderizadas via Controllers.
+- Flyway organiza migrações incrementais e reproduz o ambiente (banco como fonte da verdade de regras críticas).
+- Entidades JPA refletem o schema, mas o schema em si é controlado pelo Flyway.
 
 Escolhas de arquitetura
 
@@ -61,6 +95,53 @@ Escolhas de arquitetura
 - JSP + JSTL: escolha simples e integrada ao Spring Boot para o desafio; fácil renderização server-side.
 - Flyway: versiona o banco, reproduzindo o ambiente com segurança e auditabilidade.
 - Soft delete em entidades sensíveis (salas/setores) para preservar histórico sem quebrar FKs.
+
+## Autenticação, formulários e validação
+
+Autenticação (Spring Security)
+
+- `SecurityConfig` define o `SecurityFilterChain` com regras de autorização por rota:
+  - `/admin/**` apenas `ROLE_ADMIN`, `/recepcionista/**` apenas `ROLE_RECEPCIONISTA`, `/cliente/**` apenas `ROLE_CLIENTE`.
+  - Páginas públicas: `/login`, `/registrar`, `/cliente/editar` e estáticos (`/css/**`, `/js/**`, `/static/**`).
+- Login via formulário (`/login`) com parâmetros `email` e `password`.
+- Pós-login redireciona por papel (handler customizado): Admin → `/admin`, Recepcionista → `/recepcionista`, Cliente → `/cliente`.
+- Logout em `/logout` com redirecionamento para `/login?logout`.
+- Recursos estáticos usam uma `SecurityFilterChain` dedicada, `STATELESS` e com CSRF desabilitado.
+
+UserDetails e carregamento de usuário
+
+- `Usuario` implementa `UserDetails`: `email` como username, `senha` como password, e a autoridade vem do `cargo.nome` (ex.: `ROLE_CLIENTE`).
+- `AuthenticatedUserDetailsService` implementa `UserDetailsService` e carrega o usuário por email (`UsuarioRepository.findByEmail`) com `@EntityGraph` para buscar o `cargo` junto.
+
+Autenticação programática
+
+- `AuthService.authenticateAndEstablishSession` permite autenticar e criar sessão programaticamente (ex.: auto-login após cadastro), persistindo o `SecurityContext` na sessão HTTP via `SecurityContextRepository`.
+
+Fluxo de login e registro (controllers e views)
+
+- `AuthController` expõe:
+  - `GET /login`: exibe a view de login; se já autenticado, redireciona conforme papel.
+  - `GET /registrar`: prepara `RegistrarClienteForm` e renderiza view.
+  - `POST /registrar`: valida o formulário; em sucesso, chama `ClienteService.cadastrarUsuarioECliente` e redireciona com flash message.
+  - `GET/POST /cliente/editar`: fluxo público para atualização de dados do cliente.
+- Views JSP esperadas: `login.jsp`, `registrar.jsp`, `cliente/editar-publico.jsp`.
+
+Validação de formulários (Bean Validation)
+
+- Form objects com Jakarta Bean Validation via anotações:
+  - `RegistrarClienteForm`: `@NotBlank` (nome/email/senha/telefone), `@Email` (email), `@Size(min=6)` (senha), `@Pattern("\\d{11}")` (telefone)
+  - `EditarClientePublicForm`: validações análogas, com `novaSenha` no lugar de `senha`
+- Em caso de erro (`BindingResult.hasErrors()`), o controller reexibe a view com mensagens de validação.
+
+Armazenamento de senhas
+
+- `PasswordEncoder` é `BCryptPasswordEncoder` (em `SecurityConfig`).
+- Seeds usam `crypt(..., gen_salt('bf',10))` no PostgreSQL para compatibilidade.
+
+CSRF
+
+- Para recursos estáticos, CSRF é desabilitado na filter chain dedicada.
+- Para rotas com `formLogin`, o comportamento padrão do Spring se aplica (token CSRF incluído automaticamente quando necessário).
 
 ## Funcionalidades por papel
 
@@ -82,13 +163,6 @@ Escolhas de arquitetura
 
 Tabelas centrais:
 
-- `tb_cargos`, `tb_usuarios` (autenticação/roles) + `tb_administradores`, `tb_recepcionistas`, `tb_clientes`
-- `tb_setores` (caixa, aberto/fechado, soft delete)
-- `tb_salas` (valor_por_hora, capacidade, ativa, setor_id, soft delete)
-- `tb_agendamentos` (sala, cliente, início/fim, valores, status, datas)
-- `tb_transacoes` (agendamento, valor, tipo `SINAL|PAGAMENTO_FINAL|REEMBOLSO`, status)
-- `tb_historico_agendamentos` (auditoria de mudanças de status)
-
 ### Diagrama ER
 
 O diagrama entidade-relacionamento (extraído do PostgreSQL) está abaixo para referência rápida das relações entre tabelas:
@@ -97,10 +171,58 @@ O diagrama entidade-relacionamento (extraído do PostgreSQL) está abaixo para r
 
 Principais relações:
 
-- `tb_setores` 1..N `tb_salas`
-- `tb_salas` 1..N `tb_agendamentos`
-- `tb_clientes` 1..N `tb_agendamentos`
-- `tb_agendamentos` 1..N `tb_transacoes`
+Diagrama ER (Mermaid):
+
+```mermaid
+erDiagram
+  tb_cargos ||--o{ tb_usuarios : "role_id"
+  tb_usuarios ||--|| tb_administradores : "usuario_id"
+  tb_usuarios ||--|| tb_recepcionistas : "usuario_id"
+  tb_usuarios ||--|| tb_clientes : "usuario_id"
+
+  tb_setores ||--o{ tb_salas : "setor_id"
+  tb_salas ||--o{ tb_agendamentos : "sala_id"
+  tb_clientes ||--o{ tb_agendamentos : "cliente_id"
+  tb_agendamentos ||--o{ tb_transacoes : "agendamento_id"
+
+  tb_setores {
+    bigint id PK
+    varchar nome
+    numeric caixa
+    boolean aberto
+    timestamp deleted_at
+  }
+  tb_salas {
+    bigint id PK
+    varchar nome
+    numeric valor_aluguel
+    int capacidade_maxima
+    bigint setor_id FK
+    boolean ativa
+    timestamp deleted_at
+  }
+  tb_agendamentos {
+    bigint id PK
+    bigint sala_id FK
+    bigint cliente_id FK
+    timestamp data_inicio
+    timestamp data_fim
+    numeric valor_total
+    numeric valor_sinal
+    numeric valor_restante
+    varchar status
+    timestamp data_confirmacao
+    timestamp data_finalizacao
+  }
+  tb_transacoes {
+    bigint id PK
+    bigint agendamento_id FK
+    numeric valor
+    varchar tipo
+    varchar status
+    timestamp created_at
+  }
+```
 
 ## Regras de negócio (Banco vs Aplicação)
 
@@ -171,6 +293,16 @@ Com isso, >50% da lógica de negócio reside no banco, atendendo ao desafio.
 - Caixa por setor é atualizado exclusivamente por trigger sobre `tb_transacoes` quando `status=CONFIRMADA`.
 - Relatórios SQL prontos: agendamentos, transações, ocupação de sala, resumo financeiro do setor.
 
+## Onde está cada regra (resumo)
+
+- Conflito de agenda: `fn_verificar_conflito_agendamento` + trigger `tr_validar_conflito_agendamento`
+- Confirmar: `pr_confirmar_agendamento` + `fn_validar_confirmacao_agendamento`
+- Finalizar: `pr_finalizar_agendamento` + `fn_validar_finalizacao_agendamento` + `idx_ag_sala_status_inicio`
+- Cancelar: `pr_cancelar_agendamento` + `fn_validar_cancelamento_agendamento`
+- Caixa: trigger `tr_transacao_confirmada_credito` (crédito/débito)
+- Abertura/Fechamento: `pr_abrir_setor`, `pr_fechar_setor`
+- Soft delete: `pr_soft_delete_sala`, `pr_soft_delete_setor`, `pr_reativar_setor`
+
 ## Setup (Windows)
 
 Pré-requisitos:
@@ -203,41 +335,19 @@ Flyway:
 Credenciais iniciais (seeds):
 
 - Admin padrão: email `admin@local.test` / senha `admin123`
-- Recepcionistas e clientes de exemplo são criados no V8 (senhas: `recepcionista123` e `cliente123`)
+- Recepcionistas de exemplo (senha: `recepcionista123`):
+  - `maria.silva@empresa.com`
+  - `joao.santos@empresa.com`
+  - `ana.costa@empresa.com`
+- Clientes de exemplo (senha: `cliente123`):
+  - `carlos.oliveira@email.com`
+  - `fernanda.lima@email.com`
+  - `roberto.alves@email.com`
+  - `patricia.souza@email.com`
+
+Obs.: as senhas são armazenadas com hash no banco, mas os valores acima são os utilizados para login.
 
 Perfis e configurações:
 
 - ViewResolver JSP: prefixo `/WEB-INF/jsp/` e sufixo `.jsp`
 - Hibernate `ddl-auto=update` (o schema é garantido pelo Flyway; o update mantém JPA sincronizado)
-
-## Decisões de arquitetura
-
-- Banco como fonte da verdade de regras críticas: concorrência, integridade temporal e financeira centralizadas em SQL/PLpgSQL, com procedures transacionais.
-- Triggers de transações centralizam o caixa do setor, evitando divergência entre eventos de agendamento e financeiro.
-- Soft delete em `salas` e `setores` preserva histórico e impede quebra de FKs; procedures cuidam de consistência.
-- Cálculo por minuto (arredondado a 2 casas) melhora precisão frente a períodos não múltiplos de hora.
-
-## Endpoints/Views principais
-
-- Recepcionista
-  - `GET /recepcionista` (home do setor)
-  - `GET /recepcionista/agendamentos` (listar por status)
-  - `POST /recepcionista/agendamentos/confirmar|finalizar|cancelar`
-  - `GET|POST /recepcionista/agendamentos/instantaneo` (criar+confirmar)
-  - `GET /recepcionista/setor/abrir|fechar`
-- Cliente
-  - `GET /cliente` (home)
-  - `GET /cliente/setores`, `GET /cliente/salas`, `GET|POST /cliente/solicitar-agendamento`
-- Admin
-  - `GET /admin` (home)
-  - CRUD de setores/salas/recepcionistas (JSPs em `/WEB-INF/jsp/admin/*`)
-
-## Onde está cada regra (resumo)
-
-- Conflito de agenda: `fn_verificar_conflito_agendamento` + trigger `tr_validar_conflito_agendamento`
-- Confirmar: `pr_confirmar_agendamento` + `fn_validar_confirmacao_agendamento`
-- Finalizar: `pr_finalizar_agendamento` + `fn_validar_finalizacao_agendamento` + `idx_ag_sala_status_inicio`
-- Cancelar: `pr_cancelar_agendamento` + `fn_validar_cancelamento_agendamento`
-- Caixa: trigger `tr_transacao_confirmada_credito` (crédito/débito)
-- Abertura/Fechamento: `pr_abrir_setor`, `pr_fechar_setor`
-- Soft delete: `pr_soft_delete_sala`, `pr_soft_delete_setor`, `pr_reativar_setor`

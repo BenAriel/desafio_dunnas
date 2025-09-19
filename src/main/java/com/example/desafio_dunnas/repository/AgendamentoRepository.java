@@ -96,8 +96,8 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
         * Procedure: confirma agendamento.
         *
         * @post Status alterado para CONFIRMADO; rollback em caso de erro
-        * @throws org.springframework.dao.DataAccessException para erros de acesso a
-        *                                                     dados
+        * @throws DataAccessException para erros de acesso a
+        *                             dados
         */
        @Transactional
        @Modifying
@@ -109,8 +109,8 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
         *
         * @post Status alterado para FINALIZADO e transações geradas, conforme regra;
         *       rollback em caso de erro
-        * @throws org.springframework.dao.DataAccessException para erros de acesso a
-        *                                                     dados
+        * @throws DataAccessException para erros de acesso a
+        *                             dados
         */
        @Transactional
        @Modifying
@@ -122,8 +122,8 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
         *
         * @post Status alterado para CANCELADO e histórico atualizado; rollback em caso
         *       de erro
-        * @throws org.springframework.dao.DataAccessException para erros de acesso a
-        *                                                     dados
+        * @throws DataAccessException para erros de acesso a
+        *                             dados
         */
        @Transactional
        @Modifying

@@ -302,12 +302,10 @@
                                         </c:otherwise>
                                     </c:choose>
                                     <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
-                                    <!-- Página atual no meio (se não for primeira nem última) -->
                                     <c:if test="${histPage.number > 0 && histPage.number < histPage.totalPages - 1}">
                                         <span class="px-3 py-2 text-sm font-medium border border-blue-600 bg-blue-600 text-white">${histPage.number + 1}</span>
                                         <span class="px-3 py-2 text-sm font-medium border border-gray-200 bg-gray-100 text-gray-500">…</span>
                                     </c:if>
-                                    <!-- Última página -->
                                     <c:set var="lastIndex" value="${histPage.totalPages - 1}" />
                                     <c:choose>
                                         <c:when test="${histPage.number == lastIndex}">
